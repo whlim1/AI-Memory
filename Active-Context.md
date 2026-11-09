@@ -5,7 +5,7 @@
 
 ## Last Updated
 - **Date:** 2026-11-09
-- **Session:** Qdrant Deployment (Phase 2 — tasks 2.2/2.3/2.4/2.5/2.6 done)
+- **Session:** Qdrant Deployment (Phase 2 — tasks 2.2/2.3/2.4/2.5/2.6/2.7 done)
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
@@ -25,7 +25,8 @@
 - [x] Health check script (task 2.4) — `C:\docker\qdrant\scripts\health-check.ps1` (container + /healthz + /readyz + collections; exit 0/1)
 - [x] Startup script (task 2.5) — `C:\docker\qdrant\scripts\start-qdrant.ps1` (idempotent compose up + /readyz wait, up to 3 restarts; exit 0/1)
 - [x] Backup script (task 2.6) — `C:\docker\qdrant\scripts\backup-qdrant.ps1` (snapshots all collections to `backups\`, 7-day retention; exit 0/1)
-- [ ] **NEXT:** Restore script — task 2.7
+- [x] Restore script (task 2.7) — `C:\docker\qdrant\scripts\restore-qdrant.ps1` (restores from `backups\` via snapshot upload API; `-List`/`-Collection`/`-SnapshotFile`/default-all; type-`YES` confirmation unless `-Force`; verifies + reports vector count; exit 0/1)
+- [ ] **NEXT:** Maintenance script (optimize, vacuum) — task 2.8
 
 ## Blockers
 
