@@ -5,7 +5,7 @@
 
 ## Last Updated
 - **Date:** 2026-11-09
-- **Session:** Docker Verification & Documentation Update
+- **Session:** Qdrant Deployment (Phase 2 — tasks 2.2/2.3 done)
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
@@ -20,7 +20,9 @@
 - [x] AI-Memory core files (9 docs + 4 templates)
 - [x] AI-Memory documentation refresh (2026-11-09)
 - [x] Python: Project structure (pyproject.toml, requirements) 
-- [ ] **NEXT:** Qdrant docker-compose.yml (task 2.2)
+- [x] Qdrant docker-compose.yml (task 2.2) — committed to AI-Memory repo
+- [x] Qdrant config.yaml (task 2.3) — committed to `C:\docker\qdrant` repo (first commit)
+- [ ] **NEXT:** Health check script (task 2.4)
 
 ## Blockers
 
@@ -79,10 +81,13 @@
 3. ~~User reboots~~ (done 2026-11-09)
 4. ~~Agent resumes: create remaining AI-Memory core files~~ (done)
 5. ~~AI-Memory documentation refresh~~ (done 2026-11-09)
-6. **Deploy Qdrant (docker compose)** — task 2.2, next
-7. Build Python ingestion pipeline (Phase 1 tasks 1.10–1.16)
-8. Configure Continue 2.0
-9. Integrate LM Studio
-10. Backup automation
-11. Monitoring
-12. Documentation
+6. ~~Deploy Qdrant (docker compose)~~ — tasks 2.2/2.3 done (compose + config.yaml)
+7. **Qdrant ops scripts** — health check (2.4), startup (2.5), backup (2.6), restore (2.7), maintenance (2.8)
+8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10)
+9. **Snapshot rotation (2.11) + recovery docs (2.12)**
+10. Build Python ingestion pipeline (Phase 1 tasks 1.10–1.16)
+11. Configure Continue 2.0
+12. Integrate LM Studio
+13. Backup automation
+14. Monitoring
+15. Documentation

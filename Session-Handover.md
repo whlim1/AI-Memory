@@ -121,3 +121,51 @@ D:\AI-Memory\templates\decision-template.md
 D:\AI-Memory\templates\research-template.md
 D:\AI-Memory\templates\session-template.md
 ```
+
+---
+
+## Session 2: Docker Verification & Qdrant Deployment (Phase 2)
+**Date:** 2026-11-09
+**Agent:** AI Infrastructure Architect
+
+### What Was Done
+1. **Task 2.1 — Docker Desktop + WSL 2** — Installed Docker Desktop 29.9.2 (WSL 2 backend), Compose v5.6.1; daemon verified (`docker info` OK, `docker-desktop` distro Running)
+2. **Task 2.2 — docker-compose.yml** — Rewrote `D:\AI-Memory\docker-compose.yml`:
+   - Config mount `C:/docker/qdrant/config:/qdrant/config:ro`, storage `C:/docker/qdrant/storage:/qdrant/storage` (local C: paths — SMB unreliable for Docker bind mounts)
+   - Telemetry off, `max_upload_size` 1GB, `on_disk: false` (vectors in RAM)
+   - Resource limits 2 CPUs / 2GB (reservation 512MB), json-file log rotation 10m×3
+   - Removed redundant named volume and `version:` key
+3. **Task 2.3 — config.yaml** — Created `C:\docker\qdrant\config\config.yaml`: telemetry off, ports 6333/6334, `max_upload_size` 1GB, `on_disk: false`, WAL 32MB
+4. **Git** — Committed compose + task files to AI-Memory repo; first commit of `C:\docker\qdrant` repo (config.yaml)
+
+### Key Findings
+- `D:\` is an SMB mapping of `\\192.168.0.16\docker\` — Docker bind mounts from SMB are unreliable; Qdrant storage/config/scripts live on local `C:\docker\qdrant\`
+- `C:\docker\qdrant\` is its own git repo (first commit made this session)
+- `storage/` does not exist yet — Docker creates it on first start
+- config.yaml must exist before first start (an empty config mount would hide the image default and Qdrant would not boot)
+
+### Gotchas / Warnings
+- Git "dubious ownership" on SMB path — fixed with `git config --global --add safe.directory '//192.168.0.16/docker/AI-Memory'` and `'D:/AI-Memory'`; re-add if git fails
+- `pyproject.toml` and `requirements.txt` are MISSING despite task 1.10 marked done — flagged, out of Phase 2 scope
+- HNSW params (m=16, ef_construct=100) + Cosine are applied per-collection at creation (task 2.9), not in config.yaml
+
+### What's Next
+- [ ] Task 2.4 — Health check script (`C:\docker\qdrant\scripts\`)
+- [ ] Task 2.5 — Startup script (auto-restart)
+- [ ] Task 2.6 — Backup script (snapshot)
+- [ ] Task 2.7 — Restore script
+- [ ] Task 2.8 — Maintenance script (optimize, vacuum)
+- [ ] Task 2.9 — Create all 8 collections with HNSW params
+- [ ] Task 2.10 — Collection metadata schema
+- [ ] Task 2.11 — Snapshot rotation policy
+- [ ] Task 2.12 — Recovery documentation
+- [ ] Deploy Qdrant (`docker compose up -d`) — deferred per user instruction (deploy first, test later)
+
+### Files Created/Modified This Session
+```
+D:\AI-Memory\docker-compose.yml (rewritten)
+C:\docker\qdrant\config\config.yaml (new)
+D:\AI-Memory\Task-Queue.md (2.2/2.3 marked done)
+D:\AI-Memory\Active-Context.md (updated)
+D:\AI-Memory\Session-Handover.md (this entry)
+```

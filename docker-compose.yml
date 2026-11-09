@@ -1,22 +1,57 @@
-version: '3.8'
+# =============================================================================
+# Qdrant — AI Memory & Retrieval Platform (Component 1)
+# =============================================================================
+# Design refs : D:\AI-Memory\System-Architecture.md (Component 1)
+#               D:\AI-Memory\Decisions.md (D-001 local-first, D-002 Qdrant)
+# Task        : 2.2 (docker-compose.yml)
+#
+# Host paths (all on the local C: drive — D:\ is an SMB share and is not
+# reliable for Docker bind mounts):
+#   Storage : C:\docker\qdrant\storage   vectors + WAL + snapshots
+#   Config  : C:\docker\qdrant\config    config.yaml (task 2.3)
+#   Backups : C:\docker\qdrant\backups   snapshot retention (7 days)
+#   Scripts : C:\docker\qdrant\scripts   health/startup/backup/restore/maint
+#   Logs    : C:\docker\qdrant\logs      script + operational logs
+#
+# IMPORTANT: config.yaml must exist before first start (task 2.3). An empty
+# config mount would hide the image's default config and Qdrant will not boot.
+#
+# Usage:
+#   docker compose up -d            start
+#   docker compose ps               status
+#   docker compose logs -f qdrant   logs
+#   docker compose down             stop (data persists in C:\docker\qdrant)
+# =============================================================================
 
 services:
   qdrant:
     image: qdrant/qdrant:v1.7.0
+    container_name: qdrant
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "6333:6333"   # HTTP REST API
+      - "6334:6334"   # gRPC API
     volumes:
-      - ./qdrant_storage:/qdrant/storage
+      - C:/docker/qdrant/storage:/qdrant/storage
+      - C:/docker/qdrant/config:/qdrant/config:ro
     environment:
-      - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 15s
     restart: unless-stopped
-
-volumes:
-  qdrant_storage:
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+        reservations:
+          memory: 512m
