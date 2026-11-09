@@ -33,7 +33,7 @@
 | 2.3 | Qdrant config (config.yaml) | [x] | Done 2026-11-09 — `C:\docker\qdrant\config\config.yaml`; telemetry off, ports 6333/6334, 1GB upload, on_disk:false, WAL 32MB; committed to `C:\docker\qdrant` repo (first commit) |
 | 2.4 | Health check script | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\health-check.ps1`; checks container + `/healthz` + `/readyz` + collections; exit 0/1 for schedulers; logs to `logs\health-check.log` |
 | 2.5 | Startup script (auto-restart) | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\start-qdrant.ps1`; idempotent `compose up -d` + `/readyz` wait, up to 3 restarts on failure; exit 0/1 for schedulers; logs to `logs\start-qdrant.log` |
-| 2.6 | Backup script (snapshot) | [ ] | |
+| 2.6 | Backup script (snapshot) | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\backup-qdrant.ps1`; snapshots all collections to `backups\`, 7-day retention, exit 0/1 for schedulers; logs to `logs\backup-qdrant.log` |
 | 2.7 | Restore script | [ ] | |
 | 2.8 | Maintenance script (optimize, vacuum) | [ ] | |
 | 2.9 | Create all 8 collections | [ ] | |
