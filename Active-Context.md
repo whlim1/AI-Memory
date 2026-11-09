@@ -1,0 +1,88 @@
+﻿# Active Context
+
+> **Purpose:** Snapshot of the current working state. Updated at the end of every task/session.
+> **Rule:** If this file says "X is done" but you're not sure, verify before proceeding.
+
+## Last Updated
+- **Date:** 2026-11-09
+- **Session:** Docker Verification & Documentation Update
+- **Agent:** AI Infrastructure Architect
+
+## Current Phase
+**Phase 2: Qdrant Deployment** (Docker Compose + Qdrant container)
+
+## Current Task
+- [x] Environment discovery & verification
+- [x] Directory skeleton creation (C:\docker, D:\AI-Memory, D:\AIPlatform, D:\backups, D:\repositories)
+- [x] Document findings for post-reboot continuity
+- [x] Docker Desktop 29.9.2 installed + WSL 2 running (verified 2026-11-09)
+- [x] Docker Compose v5.6.1 installed
+- [x] AI-Memory core files (9 docs + 4 templates)
+- [x] AI-Memory documentation refresh (2026-11-09)
+- [x] Python: Project structure (pyproject.toml, requirements) 
+- [ ] **NEXT:** Qdrant docker-compose.yml (task 2.2)
+
+## Blockers
+
+| Blocker | Owner | Status | Workaround |
+|---------|-------|--------|------------|
+| (none) | — | — | — |
+
+## Environment State (Verified)
+
+### Hardware
+- **Machine:** GMKtec X1 Pro (Windows 11)
+- **CPU:** Intel Core i5-13420H (8 cores, 12 threads)
+- **RAM:** 32 GB
+- **GPU:** Intel Iris Xe (integrated)
+- **Disk C:** 476 GB total, ~699 GB free (after cleanup)
+- **Disk D:** 476 GB total, ~475 GB free
+
+### Software (Installed)
+| Software | Version | Notes |
+|----------|---------|-------|
+| Python | 3.15.2 | `python` on PATH |
+| pip | 26.2.2 | |
+| Tailscale | Active | Peers: inference-server (100.107.178.74), husband-phone (100.93.101.103), synology-nas (100.68.127.11) |
+| LM Studio | Running | `0.0.0.0:1234`, OpenAI-compatible API, auth required (401 without key) |
+| Synology NAS | DS420+, DSM 7.4.1-90080 | `192.168.0.16`, hostname `ToolRoom`, port 5001 open |
+| Infisical | Deployed | Secrets management (do NOT redesign) |
+| VS Code | Installed | Continue 2.0 extension target |
+| Docker Desktop | 29.9.2 | WSL 2 backend (`docker-desktop` distro Running), daemon verified 2026-11-09 |
+| Docker Compose | v5.6.1 | Standalone plugin |
+| WSL 2 | Enabled | `docker-desktop` distro Running |
+
+### Software (NOT Installed)
+| Software | Impact |
+|----------|--------|
+| Node.js | Not needed for core pipeline (Python-based) |
+
+### Network
+- **LAN:** 192.168.0.10 (this machine)
+- **Tailscale:** 100.68.127.11 (synology-nas), 100.107.178.74 (inference-server)
+- **LM Studio:** `http://0.0.0.0:1234/v1` (OpenAI-compatible)
+- **Synology:** `http://192.168.0.16:5001` (DSM web)
+
+## Key Decisions (Summary)
+- Local-first, no cloud
+- Qdrant for vector search (Docker)
+- LM Studio for local LLM inference (Qwen3.8-27B)
+- Continue 2.0 as IDE agent
+- AI-Memory as authoritative long-term knowledge
+- Python 3.15 for ingestion/indexing pipeline
+- Secrets via Infisical (env vars), never hardcoded
+- PUID=1030, PGID=100 for Synology containers
+
+## Next Actions (Ordered)
+1. ~~Document findings~~ (this file)
+2. ~~User installs Docker Desktop + WSL 2~~ (done 2026-11-09)
+3. ~~User reboots~~ (done 2026-11-09)
+4. ~~Agent resumes: create remaining AI-Memory core files~~ (done)
+5. ~~AI-Memory documentation refresh~~ (done 2026-11-09)
+6. **Deploy Qdrant (docker compose)** — task 2.2, next
+7. Build Python ingestion pipeline (Phase 1 tasks 1.10–1.16)
+8. Configure Continue 2.0
+9. Integrate LM Studio
+10. Backup automation
+11. Monitoring
+12. Documentation

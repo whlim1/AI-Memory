@@ -1,0 +1,11 @@
+﻿## D-XXX: [Decision Title]
+- **Date:** YYYY-MM-DD
+- **Context:** [What problem are we solving?]
+- **Decision:** [What did we decide?]
+- **Alternatives Considered:**
+  - [Alternative 1]: [Why rejected]
+  - [Alternative 2]: [Why rejected]
+- **Consequences:**
+  - Positive: [Benefits]
+  - Negative: [Trade-offs]
+- **Reversibility:** [Easy/Medium/Hard to reverse]

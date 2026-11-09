@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Qdrant local data (lives in C:\docker\qdrant, never in this repo)
+qdrant_storage/
+*.snapshot
+*.tar
+
+# Secrets — never commit (D-007: Infisical-managed)
+.env
+*.env
+secrets/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
