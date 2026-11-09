@@ -31,7 +31,7 @@
 | 2.1 | Install Docker Desktop + WSL 2 | [x] | Done — Docker Desktop 29.9.2, WSL 2 (docker-desktop distro Running), Compose v5.6.1; daemon verified 2026-11-09 |
 | 2.2 | docker-compose.yml for Qdrant | [x] | Done 2026-11-09 — telemetry off, 1GB upload, on_disk:false, 2CPU/2GB limits, log rotation; local C: paths (SMB unreliable for bind mounts) |
 | 2.3 | Qdrant config (config.yaml) | [x] | Done 2026-11-09 — `C:\docker\qdrant\config\config.yaml`; telemetry off, ports 6333/6334, 1GB upload, on_disk:false, WAL 32MB; committed to `C:\docker\qdrant` repo (first commit) |
-| 2.4 | Health check script | [ ] | |
+| 2.4 | Health check script | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\health-check.ps1`; checks container + `/healthz` + `/readyz` + collections; exit 0/1 for schedulers; logs to `logs\health-check.log` |
 | 2.5 | Startup script (auto-restart) | [ ] | |
 | 2.6 | Backup script (snapshot) | [ ] | |
 | 2.7 | Restore script | [ ] | |

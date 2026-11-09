@@ -5,7 +5,7 @@
 
 ## Last Updated
 - **Date:** 2026-11-09
-- **Session:** Qdrant Deployment (Phase 2 — tasks 2.2/2.3 done)
+- **Session:** Qdrant Deployment (Phase 2 — tasks 2.2/2.3/2.4 done)
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
@@ -22,7 +22,8 @@
 - [x] Python: Project structure (pyproject.toml, requirements) 
 - [x] Qdrant docker-compose.yml (task 2.2) — committed to AI-Memory repo
 - [x] Qdrant config.yaml (task 2.3) — committed to `C:\docker\qdrant` repo (first commit)
-- [ ] **NEXT:** Health check script (task 2.4)
+- [x] Health check script (task 2.4) — `C:\docker\qdrant\scripts\health-check.ps1` (container + /healthz + /readyz + collections; exit 0/1)
+- [ ] **NEXT:** Startup script with auto-restart (task 2.5)
 
 ## Blockers
 
@@ -82,7 +83,7 @@
 4. ~~Agent resumes: create remaining AI-Memory core files~~ (done)
 5. ~~AI-Memory documentation refresh~~ (done 2026-11-09)
 6. ~~Deploy Qdrant (docker compose)~~ — tasks 2.2/2.3 done (compose + config.yaml)
-7. **Qdrant ops scripts** — health check (2.4), startup (2.5), backup (2.6), restore (2.7), maintenance (2.8)
+7. **Qdrant ops scripts** — ~~health check (2.4)~~ done; startup (2.5), backup (2.6), restore (2.7), maintenance (2.8)
 8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10)
 9. **Snapshot rotation (2.11) + recovery docs (2.12)**
 10. Build Python ingestion pipeline (Phase 1 tasks 1.10–1.16)
