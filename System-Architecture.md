@@ -77,15 +77,14 @@
 - **API:** OpenAI-compatible
 
 ### 3. Ingestion Pipeline (Python)
-- **Location:** `D:\AIPlatform\ingestion\`
-- **Components:**
-  - `redactor.py` - Secret/PII redaction
-  - `chunker.py` - 1000 token chunks, 150 overlap
-  - `embedder.py` - LM Studio embedding calls
-  - `qdrant_client.py` - Qdrant upsert/query
-  - `summarizer.py` - Semantic summaries via LM Studio
-  - `metadata.py` - Metadata generation
-- **Entry point:** `pipeline.py` (orchestrates redact -> chunk -> embed -> store)
+- **Location:** `D:\AI-Memory\ai_memory_pipeline\`
+- **Modules:**
+  - `chunking.py` — sentence/word/paragraph splitting, `chunk_text`, `chunk_generator`
+  - `redaction.py` — `Redactor` class + `redact_pii` (regex-based PII redaction)
+  - `semantic_summary.py` — `SemanticSummarizer` class + `summarize_text`
+  - `metadata.py` — `DocumentMetadata`, `extract_metadata_from_text`, `merge_metadata`
+  - `qdrant_client.py` — `QdrantManager` (upsert/query)
+- **Packaging:** `pyproject.toml` + `requirements.txt` at repo root (recreated 2026-11-11); only external dependency is `qdrant-client>=1.7`
 
 ### 4. Memory Sync Service
 - **Location:** `D:\AIPlatform\memory-sync\`

@@ -4,9 +4,9 @@
 > **Rule:** This index is authoritative. If it conflicts with conversation context, this file wins.
 
 ## Last Updated
-- **Date:** 2026-11-09 (documentation refresh)
+- **Date:** 2026-11-11 (packaging recreation + pipeline import fixes)
 - **Agent:** AI Infrastructure Architect
-- **Status:** Phase 2 ready — Docker 29.9.2 + Compose v5.6.1 verified; next task 2.2 (Qdrant docker-compose.yml)
+- **Status:** Phase 2 — tasks 2.2–2.7 done, next 2.8; packaging recreated + imports fixed 2026-11-11 (Phase 3 install unblocked)
 
 ## Authoritative Files (Load at Every Session Start)
 
@@ -48,7 +48,7 @@ D:\AI-Memory\
 |-----------|----------|--------|
 | AI-Memory (knowledge base) | `D:\AI-Memory\` (= `\\192.168.0.16\docker\AI-Memory\`) | 9 docs + 4 templates, refreshed 2026-11-09 |
 | Qdrant (vector DB) | `C:\docker\qdrant\` | Docker 29.9.2 ready; deployment pending (task 2.2) |
-| Ingestion pipeline | `D:\AIPlatform\ingestion\` | Not started |
+| Ingestion pipeline | `D:\AI-Memory\ai_memory_pipeline\` | Code exists (chunking, redaction, semantic summary, metadata, Qdrant client); packaging recreated + imports fixed 2026-11-11; unit tests pending (task 1.16) |
 | Indexers | `D:\AIPlatform\indexers\` | Not started |
 | Memory sync | `D:\AIPlatform\memory-sync\` | Not started |
 | Continue 2.0 config | `D:\AIPlatform\continue\` | Not started |

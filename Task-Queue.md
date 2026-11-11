@@ -16,7 +16,7 @@
 | 1.8 | AI-Memory: Troubleshooting-Knowledgebase.md | [x] | Done 2026-11-08 |
 | 1.9 | AI-Memory: Templates (session, decision, research) | [x] | Done 2026-11-08 — 4 templates incl. troubleshooting |
 | 1.17 | AI-Memory: Documentation refresh (all core docs + templates) | [x] | Done 2026-11-09 — Memory-Index, Documentation-Index, Troubleshooting-KB (T-001 resolved, T-011 added), UNC-path rule documented |
-| 1.10 | Python: Project structure (pyproject.toml, requirements) | [x] | Created pyproject.toml, requirements.txt, and directory structure |
+| 1.10 | Python: Project structure (pyproject.toml, requirements) | [x] | Created pyproject.toml, requirements.txt, and directory structure — files were missing; recreated 2026-11-11 (qdrant-client>=1.7 is the only external dep) |
 | 1.11 | Python: Chunking service (1000 tokens, 150 overlap) | [ ] | |
 | 1.12 | Python: Redaction service (secrets, keys, PII) | [ ] | |
 | 1.13 | Python: Semantic summary generator | [ ] | |

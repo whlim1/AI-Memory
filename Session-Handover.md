@@ -124,7 +124,7 @@ D:\AI-Memory\templates\session-template.md
 
 ---
 
-## Session 2: Docker Verification & Qdrant Deployment (Phase 2)
+## Session 3: Docker Verification & Qdrant Deployment (Phase 2)
 **Date:** 2026-11-09
 **Agent:** AI Infrastructure Architect
 
@@ -168,4 +168,52 @@ C:\docker\qdrant\config\config.yaml (new)
 D:\AI-Memory\Task-Queue.md (2.2/2.3 marked done)
 D:\AI-Memory\Active-Context.md (updated)
 D:\AI-Memory\Session-Handover.md (this entry)
+```
+
+---
+
+## Session 4: Qdrant Ops Scripts + Pipeline Packaging & Import Fixes
+**Date:** 2026-11-11
+**Agent:** AI Infrastructure Architect
+
+### What Was Done
+1. **Tasks 2.4–2.7 — Qdrant ops scripts (backfill)** — Logged here retroactively; work was done in the prior session and already recorded in Active-Context.md / Task-Queue.md:
+   - `C:\docker\qdrant\scripts\health-check.ps1` (task 2.4)
+   - `start-qdrant.ps1` with auto-restart (task 2.5)
+   - `backup-qdrant.ps1`, snapshot-based (task 2.6)
+   - `restore-qdrant.ps1` (task 2.7); committed to the `C:\docker\qdrant` repo as `bc68b0c`
+2. **Packaging recreation (task 1.10)** — Created `D:\AI-Memory\pyproject.toml` + `requirements.txt` at repo root; both were missing despite task 1.10 being marked done in an earlier session
+   - pyproject: name `ai-memory-pipeline`, version 0.1.0, requires-python >=3.10, deps `[qdrant-client>=1.7]` (pinned to match server image v1.7.0), optional dev dep `[pytest>=8]`, setuptools build
+   - requirements.txt: `qdrant-client>=1.7` — the only external dependency; all other pipeline modules are stdlib-only
+3. **Pipeline import fix** — Fixed broken imports in `ai_memory_pipeline/__init__.py`; old lines 13–15 referenced names that do not exist (`redact_sensitive_data`, `generate_semantic_summary`, `extract_metadata`, `validate_metadata`). Now imports the actual exports and re-exports 11 valid names:
+   - chunking: `split_text_by_sentences`, `split_text_by_words`, `chunk_text`
+   - redaction: `Redactor`, `redact_pii`
+   - semantic_summary: `SemanticSummarizer`, `summarize_text`
+   - metadata: `DocumentMetadata`, `extract_metadata_from_text`, `merge_metadata`
+   - qdrant_client: `QdrantManager`
+
+### Key Findings
+- All six pipeline modules were read and their exports grepped before editing — the fix is based on verified actual exports, not guesses
+- Only third-party dependency in the whole package is `qdrant-client` (imported at lines 9–10 of `qdrant_client.py`, including its `.models` submodule)
+- Stub test: with a fake `qdrant_client` (+ `.models`) injected into sys.modules, the package imports cleanly and all 11 names resolve; bare import fails only on uninstalled `qdrant-client`, which Phase 3's `pip install -r requirements.txt` resolves
+
+### Gotchas / Warnings
+- The stub test must include a fake `qdrant_client.models` submodule — line 10 of `qdrant_client.py` does `from qdrant_client.models import ...`; omitting it makes the stub test fail for the wrong reason
+- All changes in this session are UNCOMMITTED in the AI-Memory repo (nothing committed/pushed)
+
+### What's Next
+- [ ] Task 2.8 — Maintenance script (optimize, vacuum)
+- [ ] Phase 3 install: `pip install -r D:\AI-Memory\requirements.txt`, then pipeline unit tests (task 1.16)
+
+### Files Created/Modified This Session
+```
+D:\AI-Memory\pyproject.toml (new)
+D:\AI-Memory\requirements.txt (new)
+D:\AI-Memory\ai_memory_pipeline\__init__.py (imports fixed, __all__ rewritten)
+D:\AI-Memory\Memory-Index.md (updated)
+D:\AI-Memory\System-Architecture.md (Component 3 updated to actual modules/exports)
+D:\AI-Memory\Troubleshooting-Knowledgebase.md (T-007 fix path + dependency list corrected)
+D:\AI-Memory\Active-Context.md (updated)
+D:\AI-Memory\Task-Queue.md (task 1.10 note annotated)
+D:\AI-Memory\Session-Handover.md (this entry; duplicate "Session 2" renumbered to Session 3)
 ```

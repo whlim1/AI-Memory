@@ -65,8 +65,8 @@
 - **Symptom:** `ModuleNotFoundError: No module named 'qdrant_client'`
 - **Cause:** Dependencies not installed.
 - **Fix:**
-  1. `pip install -r D:\AIPlatform\ingestion\requirements.txt`
-  2. Or: `pip install qdrant-client tiktoken`
+  1. `pip install -r D:\AI-Memory\requirements.txt`
+  2. Or: `pip install qdrant-client` (only external dependency)
 - **Prevention:** Use virtual environment. `python -m venv venv`
 
 ## T-008: Synology NAS Unreachable

@@ -10,19 +10,21 @@ __author__ = "AI Memory Team"
 
 # Import core modules to make them available at package level
 from .chunking import split_text_by_sentences, split_text_by_words, chunk_text
-from .redaction import Redactor, redact_sensitive_data
-from .semantic_summary import generate_semantic_summary
-from .metadata import extract_metadata, validate_metadata
+from .redaction import Redactor, redact_pii
+from .semantic_summary import SemanticSummarizer, summarize_text
+from .metadata import DocumentMetadata, extract_metadata_from_text, merge_metadata
 from .qdrant_client import QdrantManager
 
 __all__ = [
     'split_text_by_sentences',
-    'split_text_by_words', 
+    'split_text_by_words',
     'chunk_text',
     'Redactor',
-    'redact_sensitive_data',
-    'generate_semantic_summary',
-    'extract_metadata',
-    'validate_metadata',
+    'redact_pii',
+    'SemanticSummarizer',
+    'summarize_text',
+    'DocumentMetadata',
+    'extract_metadata_from_text',
+    'merge_metadata',
     'QdrantManager'
 ]

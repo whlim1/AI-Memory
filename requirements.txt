@@ -1,0 +1,3 @@
+# AI Memory pipeline — external dependencies only.
+# All other modules (chunking, redaction, semantic_summary, metadata) are stdlib-only.
+qdrant-client>=1.7
