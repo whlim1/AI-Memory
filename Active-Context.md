@@ -4,12 +4,13 @@
 > **Rule:** If this file says "X is done" but you're not sure, verify before proceeding.
 
 ## Last Updated
-- **Date:** 2026-11-11
-- **Session:** Pipeline Packaging & Import Fixes (Phase 2 — tasks 2.2–2.7 still done, next 2.8; packaging recreated + `__init__.py` imports fixed)
+- **Date:** 2026-11-12
+- **Session:** Pipeline Unit Tests (task 1.16 — pytest suite written & green, Phase 1 complete; proceeding to Phase 3 per user instruction)
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
-**Phase 2: Qdrant Deployment** (Docker Compose + Qdrant container)
+**Phase 3: Integration** (Continue 2.0 + LM Studio config) — starting at task 3.1
+> Note: Phase 2 tasks 2.8–2.12 remain pending/deferred per current plan; Phase 1 is fully complete (incl. unit tests).
 
 ## Current Task
 - [x] Environment discovery & verification
@@ -26,7 +27,8 @@
 - [x] Startup script (task 2.5) — `C:\docker\qdrant\scripts\start-qdrant.ps1` (idempotent compose up + /readyz wait, up to 3 restarts; exit 0/1)
 - [x] Backup script (task 2.6) — `C:\docker\qdrant\scripts\backup-qdrant.ps1` (snapshots all collections to `backups\`, 7-day retention; exit 0/1)
 - [x] Restore script (task 2.7) — `C:\docker\qdrant\scripts\restore-qdrant.ps1` (restores from `backups\` via snapshot upload API; `-List`/`-Collection`/`-SnapshotFile`/default-all; type-`YES` confirmation unless `-Force`; verifies + reports vector count; exit 0/1)
-- [ ] **NEXT:** Maintenance script (optimize, vacuum) — task 2.8
+- [x] Pipeline unit tests (task 1.16) — `tests/` suite: conftest.py (qdrant stubs via sys.modules) + test_chunking, test_redaction, test_semantic_summary, test_metadata, test_qdrant_client; **116 passed** (2026-11-12); no code bugs found
+- [ ] **NEXT:** Continue 2.0: .continuerc config — task 3.1
 
 ## Blockers
 
@@ -86,12 +88,12 @@
 4. ~~Agent resumes: create remaining AI-Memory core files~~ (done)
 5. ~~AI-Memory documentation refresh~~ (done 2026-11-09)
 6. ~~Deploy Qdrant (docker compose)~~ — tasks 2.2/2.3 done (compose + config.yaml)
-7. **Qdrant ops scripts** — ~~health check (2.4)~~ done; ~~startup (2.5)~~ done; ~~backup (2.6)~~ done; restore (2.7), maintenance (2.8)
-8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10)
-9. **Snapshot rotation (2.11) + recovery docs (2.12)**
-10. Build Python ingestion pipeline (Phase 1 tasks 1.10–1.16)
-11. Configure Continue 2.0
-12. Integrate LM Studio
+7. **Qdrant ops scripts** — ~~health check (2.4)~~ done; ~~startup (2.5)~~ done; ~~backup (2.6)~~ done; ~~restore (2.7)~~ done; maintenance (2.8) deferred
+8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10) — pending (deferred per current plan)
+9. **Snapshot rotation (2.11) + recovery docs (2.12)** — pending (deferred per current plan)
+10. ~~Build Python ingestion pipeline~~ (Phase 1 tasks 1.10–1.16 done, incl. unit tests — 116 passed, 2026-11-12)
+11. **Configure Continue 2.0** ← NEXT (task 3.1: .continuerc config; then 3.2–3.7)
+12. Integrate LM Studio (tasks 3.8–3.12)
 13. Backup automation
 14. Monitoring
 15. Documentation

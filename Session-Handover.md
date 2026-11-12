@@ -217,3 +217,43 @@ D:\AI-Memory\Active-Context.md (updated)
 D:\AI-Memory\Task-Queue.md (task 1.10 note annotated)
 D:\AI-Memory\Session-Handover.md (this entry; duplicate "Session 2" renumbered to Session 3)
 ```
+
+---
+
+## Session 5: Pipeline Unit Tests (task 1.16) — Phase 1 Complete
+**Date:** 2026-11-12
+**Agent:** AI Infrastructure Architect
+
+### What Was Done
+1. **Task 1.16 — pytest suite for `ai_memory_pipeline`** — Created `D:\AI-Memory\tests/`:
+   - `conftest.py` — installs a fake `qdrant_client` (+ `.models`) into `sys.modules` at import time, before any package import; stub `QdrantClient` records constructor args and calls in `self.calls`; `recreate_collection`/`upsert`/`delete` succeed by default, `get_points()` returns `[]`, while `get_collections()` and `search()` raise RuntimeError so error paths yield False/[] unless tests monkeypatch instance methods
+   - `test_chunking.py`, `test_redaction.py`, `test_semantic_summary.py`, `test_metadata.py`, `test_qdrant_client.py`
+2. **Result: 116 passed, fully green** (pytest 9.2.0, Python 3.15.2). No live Qdrant server needed — client is stubbed.
+3. **State files updated** — Task-Queue.md tasks 1.11–1.16 marked `[x]` (pipeline code existed in baseline commit `022359a`; tests now verify it); Active-Context.md Last Updated + Current Phase → Phase 3; this entry added.
+
+### Key Findings
+- The two initial pytest failures were **wrong test expectations, not code bugs** — fixed the tests only:
+  - `test_metadata.py`: needed an `advancing_clock` fixture (ticks +1s per `now()` call) to assert `update()` bumps `updated_at`; deterministic IDs use a `_FixedDatetime` subclass monkeypatched onto the module's `datetime`, EXPECTED_ID = first 12 hex chars of md5 of the frozen-clock timestamp string
+  - `test_semantic_summary.py`: corrected bonus expectation to `[(4, "only one")]`
+- No pipeline code changes were needed or made — per user instruction ("recommend change... otherwise proceed"), tests green → proceeding to Phase 3.
+
+### Gotchas / Warnings
+- conftest stubs must be installed at import time (module level), before any `ai_memory_pipeline` import, and must include the fake `qdrant_client.models` submodule — same gotcha as Session 4's stub test
+- pytest is an optional dev dependency (`[project.optional-dependencies] dev = ["pytest>=8"]`); installed locally but not in requirements.txt
+
+### What's Next
+- [ ] **Phase 3, task 3.1** — Continue 2.0: `.continuerc` config (then 3.2–3.7 repository indexing; 3.8–3.12 LM Studio)
+- [ ] Deferred: Phase 2 tasks 2.8–2.12 (maintenance script, collections, snapshot rotation, recovery docs)
+
+### Files Created/Modified This Session
+```
+D:\AI-Memory\tests\conftest.py (new — qdrant stubs via sys.modules)
+D:\AI-Memory\tests\test_chunking.py (new)
+D:\AI-Memory\tests\test_redaction.py (new)
+D:\AI-Memory\tests\test_semantic_summary.py (new)
+D:\AI-Memory\tests\test_metadata.py (new — _FixedDatetime + advancing_clock fixtures)
+D:\AI-Memory\tests\test_qdrant_client.py (new)
+D:\AI-Memory\Task-Queue.md (1.11–1.16 marked done)
+D:\AI-Memory\Active-Context.md (Last Updated → 2026-11-12, Phase 3 start)
+D:\AI-Memory\Session-Handover.md (this entry)
+```

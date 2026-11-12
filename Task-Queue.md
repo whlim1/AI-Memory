@@ -17,12 +17,12 @@
 | 1.9 | AI-Memory: Templates (session, decision, research) | [x] | Done 2026-11-08 — 4 templates incl. troubleshooting |
 | 1.17 | AI-Memory: Documentation refresh (all core docs + templates) | [x] | Done 2026-11-09 — Memory-Index, Documentation-Index, Troubleshooting-KB (T-001 resolved, T-011 added), UNC-path rule documented |
 | 1.10 | Python: Project structure (pyproject.toml, requirements) | [x] | Created pyproject.toml, requirements.txt, and directory structure — files were missing; recreated 2026-11-11 (qdrant-client>=1.7 is the only external dep) |
-| 1.11 | Python: Chunking service (1000 tokens, 150 overlap) | [ ] | |
-| 1.12 | Python: Redaction service (secrets, keys, PII) | [ ] | |
-| 1.13 | Python: Semantic summary generator | [ ] | |
-| 1.14 | Python: Metadata generator | [ ] | |
-| 1.15 | Python: Qdrant client wrapper | [ ] | |
-| 1.16 | Python: Unit tests for pipeline | [ ] | |
+| 1.11 | Python: Chunking service (1000 tokens, 150 overlap) | [x] | Done — `ai_memory_pipeline/chunking.py`; verified by unit tests (2026-11-12) |
+| 1.12 | Python: Redaction service (secrets, keys, PII) | [x] | Done — `ai_memory_pipeline/redaction.py`; verified by unit tests (2026-11-12) |
+| 1.13 | Python: Semantic summary generator | [x] | Done — `ai_memory_pipeline/semantic_summary.py`; verified by unit tests (2026-11-12) |
+| 1.14 | Python: Metadata generator | [x] | Done — `ai_memory_pipeline/metadata.py`; verified by unit tests (2026-11-12) |
+| 1.15 | Python: Qdrant client wrapper | [x] | Done — `ai_memory_pipeline/qdrant_client.py`; verified by unit tests with stubbed client (no live server needed, 2026-11-12) |
+| 1.16 | Python: Unit tests for pipeline | [x] | Done 2026-11-12 — pytest suite in `tests/` (conftest + 5 test modules; qdrant stubbed via sys.modules); **116 passed**; no code bugs found (2 initial failures were wrong test expectations, fixed tests only) |
 
 ## Phase 2: Qdrant Deployment (Requires Docker)
 
