@@ -5,11 +5,11 @@
 
 ## Last Updated
 - **Date:** 2026-11-12
-- **Session:** Pipeline Unit Tests (task 1.16 — pytest suite written & green, Phase 1 complete; proceeding to Phase 3 per user instruction)
+- **Session:** Continue 2.0 .continuerc config (task 3.1 — written & validated; next is task 3.2 Agent settings)
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
-**Phase 3: Integration** (Continue 2.0 + LM Studio config) — starting at task 3.1
+**Phase 3: Integration** (Continue 2.0 + LM Studio config) — task 3.1 complete; next is task 3.2 (Agent settings)
 > Note: Phase 2 tasks 2.8–2.12 remain pending/deferred per current plan; Phase 1 is fully complete (incl. unit tests).
 
 ## Current Task
@@ -28,7 +28,8 @@
 - [x] Backup script (task 2.6) — `C:\docker\qdrant\scripts\backup-qdrant.ps1` (snapshots all collections to `backups\`, 7-day retention; exit 0/1)
 - [x] Restore script (task 2.7) — `C:\docker\qdrant\scripts\restore-qdrant.ps1` (restores from `backups\` via snapshot upload API; `-List`/`-Collection`/`-SnapshotFile`/default-all; type-`YES` confirmation unless `-Force`; verifies + reports vector count; exit 0/1)
 - [x] Pipeline unit tests (task 1.16) — `tests/` suite: conftest.py (qdrant stubs via sys.modules) + test_chunking, test_redaction, test_semantic_summary, test_metadata, test_qdrant_client; **116 passed** (2026-11-12); no code bugs found
-- [ ] **NEXT:** Continue 2.0: .continuerc config — task 3.1
+- [x] Continue 2.0: .continuerc config (task 3.1) — `D:\AIPlatform\continue\.continuerc` written & validated (schema v1 "Homelab-AI-Memory"; 5 LM Studio models reused verbatim from global config; ai-memory qdrant provider + codebase + docs providers; project-rules + memory-rules); file lives outside the AI-Memory repo (untracked)
+- [ ] **NEXT:** Continue 2.0: Agent settings — task 3.2
 
 ## Blockers
 
@@ -92,7 +93,7 @@
 8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10) — pending (deferred per current plan)
 9. **Snapshot rotation (2.11) + recovery docs (2.12)** — pending (deferred per current plan)
 10. ~~Build Python ingestion pipeline~~ (Phase 1 tasks 1.10–1.16 done, incl. unit tests — 116 passed, 2026-11-12)
-11. **Configure Continue 2.0** ← NEXT (task 3.1: .continuerc config; then 3.2–3.7)
+11. **Configure Continue 2.0** — ~~task 3.1 (.continuerc)~~ done 2026-11-12; ← NEXT is task 3.2 (Agent settings); then 3.3–3.7
 12. Integrate LM Studio (tasks 3.8–3.12)
 13. Backup automation
 14. Monitoring

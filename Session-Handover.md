@@ -257,3 +257,36 @@ D:\AI-Memory\Task-Queue.md (1.11–1.16 marked done)
 D:\AI-Memory\Active-Context.md (Last Updated → 2026-11-12, Phase 3 start)
 D:\AI-Memory\Session-Handover.md (this entry)
 ```
+
+## Session 6: Continue 2.0 .continuerc Config (task 3.1)
+**Date:** 2026-11-12
+**Agent:** AI Infrastructure Architect
+
+### What Was Done
+1. **Task 3.1 — `.continuerc` config for the AI-Memory platform** — Created `D:\AIPlatform\continue\.continuerc` (schema v1, "Homelab-AI-Memory"):
+   - 5 LM Studio models reused verbatim from the global config at `C:\Users\Alex\.continue\config.yaml` ("Homelab-AI"): Qwen3.8-27B chat (ctx 32768), Qwen3 Coder 30B A3B edit/apply, Qwen3.5-4B autocomplete, BGE-M3 embed, BGE-Reranker-v2-M3 rerank; apiBase `http://localhost:1234/v1` + shared apiKey
+   - Context providers: `ai-memory` (custom qdrant provider at `http://localhost:6333`, all 8 collections from System-Architecture.md line 66), `codebase`, `docs`
+   - Rules: `project-rules` + `memory-rules`
+2. **Validation** — PyYAML unavailable (pip blocked by Application Control policy; no venv) → validated manually against R-003 schema + global config structure; all 5 model blocks match the working global config byte-for-byte; same v1 top-level keys; no tabs, no BOM. The Qdrant provider module itself is deferred to tasks 3.3/3.6/3.7.
+3. **State files updated** — Task-Queue.md task 3.1 marked `[x]`; Active-Context.md Last Updated + Current Phase → next is task 3.2; Memory-Index.md Continue row updated; this entry added.
+
+### Key Findings
+- `D:\AIPlatform\continue\` was empty before this session — `.continuerc` is the first file there, and it lives outside the AI-Memory git repo (untracked). The task 3.1 commit covers only doc updates in `D:\AI-Memory`.
+- Per System-Architecture.md §5, `D:\AIPlatform\continue\` is the canonical location for Continue 2.0 platform config (Component 5); R-003 confirms `.continuerc` YAML supports custom models, rules, MCP servers, and context providers (codebase, web, docs, custom).
+
+### Gotchas / Warnings
+- Do not invent new model ids — reuse the working definitions from the global config verbatim (LM Studio returns 401 without a Bearer token; see R-002).
+- PyYAML cannot be installed on this host (pip blocked by policy, no wheel for Python 3.15.2) — validate YAML by manual review against known-good configs.
+
+### What's Next
+- [ ] **Phase 3, task 3.2** — Continue 2.0: Agent settings (then 3.3–3.7 retrieval/indexing; 3.8–3.12 LM Studio)
+- [ ] Deferred: Phase 2 tasks 2.8–2.12
+
+### Files Created/Modified This Session
+```
+D:\AIPlatform\continue\.continuerc (new — outside AI-Memory repo, untracked)
+D:\AI-Memory\Task-Queue.md (3.1 marked done)
+D:\AI-Memory\Active-Context.md (Last Updated → task 3.1 complete, next is 3.2)
+D:\AI-Memory\Memory-Index.md (Continue row: .continuerc written & validated)
+D:\AI-Memory\Session-Handover.md (this entry)
+```

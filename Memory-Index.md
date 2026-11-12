@@ -51,7 +51,7 @@ D:\AI-Memory\
 | Ingestion pipeline | `D:\AI-Memory\ai_memory_pipeline\` | Code exists (chunking, redaction, semantic summary, metadata, Qdrant client); packaging recreated + imports fixed 2026-11-11; unit tests pending (task 1.16) |
 | Indexers | `D:\AIPlatform\indexers\` | Not started |
 | Memory sync | `D:\AIPlatform\memory-sync\` | Not started |
-| Continue 2.0 config | `D:\AIPlatform\continue\` | Not started |
+| Continue 2.0 config | `D:\AIPlatform\continue\` | .continuerc written & validated (task 3.1, 2026-11-12); file outside AI-Memory repo (untracked) |
 | LM Studio integration | `D:\AIPlatform\lmstudio\` | Not started |
 | Backups | `D:\backups\` | Not started |
 | Monitoring | `D:\AIPlatform\monitoring\` | Not started |

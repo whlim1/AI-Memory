@@ -45,7 +45,7 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 3.1 | Continue 2.0: .continuerc config | [ ] | |
+| 3.1 | Continue 2.0: .continuerc config | [x] | `D:\AIPlatform\continue\.continuerc` (outside AI-Memory repo, untracked); schema v1 "Homelab-AI-Memory"; 5 LM Studio models reused verbatim from global config; ai-memory qdrant provider + codebase + docs; project-rules + memory-rules |
 | 3.2 | Continue 2.0: Agent settings | [ ] | |
 | 3.3 | Continue 2.0: Retrieval workflows | [ ] | |
 | 3.4 | Continue 2.0: Custom system prompts | [ ] | |
