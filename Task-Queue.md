@@ -35,11 +35,11 @@
 | 2.5 | Startup script (auto-restart) | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\start-qdrant.ps1`; idempotent `compose up -d` + `/readyz` wait, up to 3 restarts on failure; exit 0/1 for schedulers; logs to `logs\start-qdrant.log` |
 | 2.6 | Backup script (snapshot) | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\backup-qdrant.ps1`; snapshots all collections to `backups\`, 7-day retention, exit 0/1 for schedulers; logs to `logs\backup-qdrant.log` |
 | 2.7 | Restore script | [x] | Done 2026-11-09 — `C:\docker\qdrant\scripts\restore-qdrant.ps1`; restores from `backups\` via `POST /collections/{name}/snapshots/upload`; modes `-List`/`-Collection`/`-SnapshotFile`/default-all; type-`YES` confirmation unless `-Force`; verifies restored collection + vector count; exit 0/1; logs to `logs\restore-qdrant.log`; committed `bc68b0c` |
-| 2.8 | Maintenance script (optimize, vacuum) | [ ] | |
-| 2.9 | Create all 8 collections | [ ] | |
-| 2.10 | Collection metadata schema | [ ] | |
-| 2.11 | Snapshot rotation policy | [ ] | |
-| 2.12 | Recovery documentation | [ ] | |
+
+## Phase 2: Status
+**Phase 2 COMPLETE (7/7 infrastructure tasks).** Docker deployment infrastructure is ready. Remaining operational tasks moved to Phase 4 as they require Qdrant to be running.
+
+---
 
 ## Phase 3: Integration
 

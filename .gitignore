@@ -22,3 +22,11 @@ secrets/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# IDE/Editor configs (local development only)
+.opencoderc
+opencode/.env
+
+# Build artifacts
+*.log
+.pytest_cache/

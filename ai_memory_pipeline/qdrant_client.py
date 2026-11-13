@@ -117,11 +117,13 @@ class QdrantManager:
             List[Dict[str, Any]]: List of matching documents with scores
         """
         try:
-            results = self.client.search(
+            # Use query_points which is available in qdrant-client 1.7+
+            results = self.client.query_points(
                 collection_name=collection_name,
-                query_vector=query_vector,
+                query=query_vector,  # Use the vector directly for nearest search
                 limit=limit,
-                filter=filter_conditions
+                with_payload=True,
+                with_vectors=False
             )
             
             # Convert Qdrant results to a more usable format

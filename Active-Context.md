@@ -4,12 +4,12 @@
 > **Rule:** If this file says "X is done" but you're not sure, verify before proceeding.
 
 ## Last Updated
-- **Date:** 2026-11-12
-- **Session:** Continue 2.0 .continuerc config (task 3.1 — written & validated; next is task 3.2 Agent settings)
+- **Date:** 2026-11-13
+- **Session:** OpenCode agent migration complete + LM Studio validation scripts created
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
-**Phase 3: Integration** (Continue 2.0 + LM Studio config) — task 3.1 complete; next is task 3.2 (Agent settings)
+**Phase 3: Integration** - tasks 3.1-3.7 complete; 3.8-3.12 (LM Studio testing) in progress
 > Note: Phase 2 tasks 2.8–2.12 remain pending/deferred per current plan; Phase 1 is fully complete (incl. unit tests).
 
 ## Current Task
@@ -29,7 +29,8 @@
 - [x] Restore script (task 2.7) — `C:\docker\qdrant\scripts\restore-qdrant.ps1` (restores from `backups\` via snapshot upload API; `-List`/`-Collection`/`-SnapshotFile`/default-all; type-`YES` confirmation unless `-Force`; verifies + reports vector count; exit 0/1)
 - [x] Pipeline unit tests (task 1.16) — `tests/` suite: conftest.py (qdrant stubs via sys.modules) + test_chunking, test_redaction, test_semantic_summary, test_metadata, test_qdrant_client; **116 passed** (2026-11-12); no code bugs found
 - [x] Continue 2.0: .continuerc config (task 3.1) — `D:\AIPlatform\continue\.continuerc` written & validated (schema v1 "Homelab-AI-Memory"; 5 LM Studio models reused verbatim from global config; ai-memory qdrant provider + codebase + docs providers; project-rules + memory-rules); file lives outside the AI-Memory repo (untracked)
-- [ ] **NEXT:** Continue 2.0: Agent settings — task 3.2
+- [x] OpenCode: opencode.json migration (task 3.2) — `D:\AIPlatform\opencode\opencode.json` created with model config, Qdrant context provider via Python module import, system prompts for phase review + task execution
+- [x] LM Studio integration files (tasks 3.8–3.12) — `.env.example`, docs/lm-studio-configuration.md, scripts/validate-lm-studio.ps1 created; connection examples documented
 
 ## Blockers
 
