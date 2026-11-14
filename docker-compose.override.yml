@@ -1,0 +1,60 @@
+# =============================================================================
+# Service Configuration - docker-compose.override.yml
+# =============================================================================
+# This file overrides docker-compose.yml settings for local development
+# Usage: docker compose -f docker-compose.yml -f docker-compose.override.yml up
+# =============================================================================
+
+version: '3.8'
+
+services:
+  deduplication:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "8001:8001"   # Expose for local development
+    environment:
+      - QDRANT_URL=http://host.docker.internal:6333  # Access NAS container from host
+      - LOG_LEVEL=debug
+
+  chunking:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "8002:8002"
+    environment:
+      - QDRANT_URL=http://host.docker.internal:6333
+      - LOG_LEVEL=debug
+
+  embedding:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "8003:8003"
+    environment:
+      - QDRANT_URL=http://host.docker.internal:6333
+      - LM_STUDIO_URL=http://host.docker.internal:1234
+      - LOG_LEVEL=debug
+
+  model-cache:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "8004:8004"
+    environment:
+      - QDRANT_URL=http://host.docker.internal:6333
+      - LM_STUDIO_URL=http://host.docker.internal:1234
+      - LOG_LEVEL=debug
+
+  api-gateway:
+    ports:
+      - "8000:8000"
+    environment:
+      - DEDUP_URL=http://host.docker.internal:8001
+      - CHUNKING_URL=http://host.docker.internal:8002
+      - EMBEDDING_URL=http://host.docker.internal:8003
+      - MODEL_CACHE_URL=http://host.docker.internal:8004

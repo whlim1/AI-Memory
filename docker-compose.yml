@@ -26,19 +26,18 @@ services:
   # Volumes: Host paths mapped to container
   # =============================================================================
   qdrant:
-    image: qdrant-custom:v1.7.0
+    image: qdrant/qdrant:v1.7.0
     container_name: ai-memory-qdrant
     ports:
       - "6333:6333"   # HTTP REST API
       - "6334:6334"   # gRPC API
-      - "6335:6335"   # P2P Communication (for cluster mode)
     volumes:
-      # Vector storage, WAL, and snapshots
-      - /docker/qdrant/storage:/qdrant/storage
+      # Vector storage, WAL, and snapshots on NAS
+      - /volume3/docker/qdrant/storage:/qdrant/storage
       # Configuration (read-only from host)
-      - /docker/qdrant/config:/qdrant/config:ro
+      - /volume3/docker/qdrant/config:/qdrant/config:ro
       # Backups for disaster recovery
-      - /docker/qdrant/backups:/qdrant/backups
+      - /volume3/docker/qdrant/backups:/qdrant/backups
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
@@ -77,12 +76,12 @@ services:
       qdrant:
         condition: service_healthy
     volumes:
-      # Shared memory for you and your wife (read-write)
-      - /SharedMemory:/shared_memory:rw
-      # Pipeline logs
-      - /docker/ai-memory/logs:/app/logs:rw
+      # Shared memory for you and your wife (read-write) on NAS
+      - /volume3/docker/SharedMemory:/shared_memory:rw
+      # Pipeline logs on NAS
+      - /volume3/docker/ai-memory/logs:/app/logs:rw
       # Configuration from NAS
-      - /docker/ai-memory/config:/app/config:ro
+      - /volume3/docker/ai-memory/config:/app/config:ro
     environment:
       # Qdrant connection (same host, use container name)
       - QDRANT_URL=http://qdrant:6333
@@ -91,8 +90,8 @@ services:
       - MY_DOCUMENTS=/shared_memory/me
       - WIFE_DOCUMENTS=/shared_memory/wife
       - SHARED_DOCUMENTS=/shared_memory/shared
-      # LM Studio connection (NAS localhost)
-      - LM_STUDIO_URL=http://localhost:1234
+      # LM Studio connection (Windows host on network)
+      - LM_STUDIO_URL=http://192.168.0.19:1234
       # Processing configuration
       - CHUNK_SIZE=500
       - CHUNK_OVERLAP=50
