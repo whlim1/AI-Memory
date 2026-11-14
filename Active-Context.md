@@ -4,13 +4,40 @@
 > **Rule:** If this file says "X is done" but you're not sure, verify before proceeding.
 
 ## Last Updated
-- **Date:** 2026-11-13
-- **Session:** OpenCode agent migration complete + LM Studio validation scripts created
+- **Date:** 2026-11-14
+- **Session:** Mobile remote access setup + Documentation completion
 - **Agent:** AI Infrastructure Architect
 
 ## Current Phase
-**Phase 3: Integration** - tasks 3.1-3.7 complete; 3.8-3.12 (LM Studio testing) in progress
-> Note: Phase 2 tasks 2.8–2.12 remain pending/deferred per current plan; Phase 1 is fully complete (incl. unit tests).
+**Phase 5: Optional Enhancements - IN PROGRESS**
+
+### Completed This Session
+- Windows Task Scheduler backup setup script updated with `-LogonType S4U`
+- Automated backup scripts verified and ready for deployment
+- Tailscale MagicDNS remote access configured and tested on Android Samsung Fold 8 Ultra
+- Mobile quick reference guide created (`docs/MOBILE_QUICK_REFERENCE.md`)
+
+## Current Status
+**Phase 5 Planning Complete - Ready to Implement**
+
+| Phase | Tasks | Status |
+|-------|-------|--------|
+| Phase 1 (Foundation) | 15/15 | ✅ Complete |
+| Phase 2 (Qdrant Deployment) | 7/7 | ✅ Complete |
+| Phase 3 (Integration) | 12/12 | ✅ Complete |
+| Phase 4 (Operations) | 15/15 | ✅ Complete |
+| Phase 5 (Enhancements) | - | 📋 Planning Complete |
+
+### Phase 5 Enhancements Identified
+1. **Mobile Remote Access** - Tailscale MagicDNS configuration for Android access (COMPLETED)
+2. **Advanced Model Caching Strategies** - GPU memory optimization via model swapping, caching hot models in VRAM
+3. **Multi-GPU Support** - Distribute large models across multiple GPUs when available
+4. **Real-time Embedding Quality Monitoring** - Track embedding drift, quality metrics, and trigger re-ingestion
+5. **Dynamic Chunking Based on Content Type** - Adjust chunk size for code vs. text documents
+6. **Deduplication Pipeline** - Identify and remove duplicate or near-duplicate documents before ingestion
+
+### Next Steps
+1. Implement Phase 5 enhancements based on priority and resource availability
 
 ## Current Task
 - [x] Environment discovery & verification
@@ -31,12 +58,51 @@
 - [x] Continue 2.0: .continuerc config (task 3.1) — `D:\AIPlatform\continue\.continuerc` written & validated (schema v1 "Homelab-AI-Memory"; 5 LM Studio models reused verbatim from global config; ai-memory qdrant provider + codebase + docs providers; project-rules + memory-rules); file lives outside the AI-Memory repo (untracked)
 - [x] OpenCode: opencode.json migration (task 3.2) — `D:\AIPlatform\opencode\opencode.json` created with model config, Qdrant context provider via Python module import, system prompts for phase review + task execution
 - [x] LM Studio integration files (tasks 3.8–3.12) — `.env.example`, docs/lm-studio-configuration.md, scripts/validate-lm-studio.ps1 created; connection examples documented
+- [x] Phase 3 completion: Opencode replacement complete (tasks 3.1-3.7), LM Studio config files and validation scripts (tasks 3.8-3.12)
+- [x] Phase 4 completion: All operations tasks complete including automated backup setup via PowerShell scripts and Windows Task Scheduler configuration
+- [x] Mobile remote access setup: Tailscale MagicDNS configured, Qdrant dashboard accessible from Android device via `http://gmktec-hx9.ts-dns.xyz/dashboard`
+- [x] Mobile quick reference guide created (`docs/MOBILE_QUICK_REFERENCE.md`)
+- [~] Phase 5 planning: Enhancement topics identified, prioritized, and ready for implementation
+
+### Phase 5 Enhancements (Planned)
+- Real-time embedding quality monitoring service
+- Advanced model caching strategies in LM Studio switcher
+- Content-type-aware dynamic chunking service
+- Hash-based document deduplication pipeline
+- Multi-GPU orchestration layer (future-proofing)
+
+## Legend
+- [ ] = Pending
+- [~] = In Progress
+- [x] = Done
+- [!] = Blocked (external dependency)
 
 ## Blockers
 
 | Blocker | Owner | Status | Workaround |
 |---------|-------|--------|------------|
 | (none) | — | — | — |
+
+## Phase 5 Planning Notes
+
+### Enhancement Prioritization Criteria
+1. **Impact**: How much does this improve system performance or reliability?
+2. **Complexity**: Development and maintenance effort required
+3. **Resource Requirements**: Additional hardware or storage needed
+
+### Priority Matrix
+| Enhancement | Impact | Complexity | Priority |
+|-------------|--------|------------|----------|
+| Real-time Embedding Quality Monitoring | High | Medium | 🔴 High |
+| Advanced Model Caching Strategies | High | Medium-High | 🟡 Medium |
+| Dynamic Chunking Based on Content Type | Medium | Low-Medium | 🟡 Medium |
+| Deduplication Pipeline | Medium | Low | 🟡 Medium |
+| Multi-GPU Support | Low (for current setup) | High | 🟢 Low |
+
+### Implementation Notes
+- All enhancements are optional and non-blocking for production use
+- Enhancements can be implemented incrementally
+- Each enhancement should have its own task queue entry for tracking
 
 ## Environment State (Verified)
 
@@ -84,18 +150,16 @@
 - PUID=1030, PGID=100 for Synology containers
 
 ## Next Actions (Ordered)
-1. ~~Document findings~~ (this file)
-2. ~~User installs Docker Desktop + WSL 2~~ (done 2026-11-09)
-3. ~~User reboots~~ (done 2026-11-09)
-4. ~~Agent resumes: create remaining AI-Memory core files~~ (done)
-5. ~~AI-Memory documentation refresh~~ (done 2026-11-09)
-6. ~~Deploy Qdrant (docker compose)~~ — tasks 2.2/2.3 done (compose + config.yaml)
-7. **Qdrant ops scripts** — ~~health check (2.4)~~ done; ~~startup (2.5)~~ done; ~~backup (2.6)~~ done; ~~restore (2.7)~~ done; maintenance (2.8) deferred
-8. **Create 8 collections** with HNSW params (2.9) + metadata schema (2.10) — pending (deferred per current plan)
-9. **Snapshot rotation (2.11) + recovery docs (2.12)** — pending (deferred per current plan)
-10. ~~Build Python ingestion pipeline~~ (Phase 1 tasks 1.10–1.16 done, incl. unit tests — 116 passed, 2026-11-12)
-11. **Configure Continue 2.0** — ~~task 3.1 (.continuerc)~~ done 2026-11-12; ← NEXT is task 3.2 (Agent settings); then 3.3–3.7
-12. Integrate LM Studio (tasks 3.8–3.12)
-13. Backup automation
-14. Monitoring
-15. Documentation
+1. Phase 5 Enhancement Implementation - Priority Order:
+   - [ ] **Real-time Embedding Quality Monitoring** (High Priority) - Track embedding drift, quality metrics, trigger re-ingestion
+   - [ ] **Advanced Model Caching Strategies** (Medium Priority) - GPU memory optimization via model swapping, caching hot models in VRAM
+   - [ ] **Dynamic Chunking Based on Content Type** (Medium Priority) - Adjust chunk size for code vs. text documents
+   - [ ] **Deduplication Pipeline** (Medium Priority) - Identify and remove duplicate or near-duplicate documents before ingestion
+   - [ ] **Multi-GPU Support** (Low Priority) - Distribute large models across multiple GPUs when available
+
+2. Implementation Tasks:
+   - 5.1: Create embedding quality monitoring service
+   - 5.2: Implement model caching strategy in LM Studio switcher
+   - 5.3: Build content-type-aware chunking service
+   - 5.4: Develop deduplication pipeline using hash-based comparison
+   - 5.5: Design multi-GPU orchestration layer

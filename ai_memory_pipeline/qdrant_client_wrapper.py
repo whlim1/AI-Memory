@@ -20,26 +20,38 @@ class QdrantManager:
     and managing collections in Qdrant.
     """
 
-    def __init__(self, host: str = "localhost", port: int = 6333, api_key: Optional[str] = None):
+    def __init__(self, host: str = None, port: int = 6333, api_key: Optional[str] = None, url: str = None):
         """
         Initialize the Qdrant client manager.
 
         Args:
-            host (str): Qdrant server hostname
+            host (str): Qdrant server hostname (deprecated, use url instead)
             port (int): Qdrant server port
             api_key (Optional[str]): API key for authentication (if required)
+            url (Optional[str]): Full URL to Qdrant server (e.g., "http://localhost:6333")
         """
-        self.host = host
-        self.port = port
-        self.api_key = api_key
-        
-        # Initialize the actual Qdrant client
-        if api_key:
-            self.client = QdrantClient(host=host, port=port, api_key=api_key)
+        # Support both url parameter and host/port combination
+        if url:
+            self.url = url
+            self.host = None
+            self.port = None
+            # Initialize the actual Qdrant client with URL
+            if api_key:
+                self.client = QdrantClient(url=url, api_key=api_key)
+            else:
+                self.client = QdrantClient(url=url)
         else:
-            self.client = QdrantClient(host=host, port=port)
+            self.host = host or "localhost"
+            self.port = port
+            self.api_key = api_key  # Store for tests
+            self.url = f"http://{self.host}:{self.port}"
+            # Initialize the actual Qdrant client with host/port
+            if api_key:
+                self.client = QdrantClient(host=self.host, port=self.port, api_key=api_key)
+            else:
+                self.client = QdrantClient(host=self.host, port=self.port)
             
-        logger.info(f"Connected to Qdrant at {host}:{port}")
+        logger.info(f"Connected to Qdrant at {self.url}")
 
     def create_collection(self, collection_name: str, vector_size: int = 1536, distance: str = "Cosine") -> bool:
         """
@@ -47,7 +59,7 @@ class QdrantManager:
 
         Args:
             collection_name (str): Name of the collection to create
-            vector_size (int): Size of vectors in the collection
+            vector_size (int): Size of vectors in the collection (default: 1536 for OpenAI ada-002)
             distance (str): Distance metric for similarity search
 
         Returns:
@@ -117,14 +129,18 @@ class QdrantManager:
             List[Dict[str, Any]]: List of matching documents with scores
         """
         try:
-            # Use query_points which is available in qdrant-client 1.7+
-            results = self.client.query_points(
-                collection_name=collection_name,
-                query=query_vector,  # Use the vector directly for nearest search
-                limit=limit,
-                with_payload=True,
-                with_vectors=False
-            )
+            # Use search which is available in qdrant-client 1.0+
+            search_kwargs = {
+                "collection_name": collection_name,
+                "query_vector": query_vector,
+                "limit": limit,
+                "with_payload": True,
+                "with_vectors": False
+            }
+            if filter_conditions is not None:
+                search_kwargs["filter"] = filter_conditions
+            
+            results = self.client.search(**search_kwargs)
             
             # Convert Qdrant results to a more usable format
             return [
@@ -138,6 +154,58 @@ class QdrantManager:
         except Exception as e:
             logger.error(f"Search failed: {e}")
             return []
+
+    def upsert_documents(self, collection_name: str, documents: List[Dict[str, Any]]) -> bool:
+        """
+        Batch upsert multiple documents into Qdrant.
+
+        Args:
+            collection_name (str): Name of the collection
+            documents (List[Dict[str, Any]]): List of document dictionaries with 'id', 'text', and 'metadata' keys
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Import LM Studio embedder
+            from ai_memory_pipeline.lm_studio_embeddings import LMStudioEmbedder
+            
+            # Initialize LM Studio embedder
+            embedder = LMStudioEmbedder(host="localhost", port=1234)
+            
+            ids = []
+            vectors = []
+            payloads = []
+            
+            for doc in documents:
+                text = doc.get('text', '')
+                metadata = doc.get('metadata', {})
+                
+                # Generate embedding for the text using LM Studio
+                vector = embedder.generate_single_embedding(text)
+                
+                ids.append(doc['id'])
+                vectors.append(vector)
+                payloads.append({
+                    **metadata,
+                    'content': text
+                })
+            
+            # Use Batch model to properly format the data
+            from qdrant_client.http.models import Batch
+            batch = Batch(ids=ids, vectors=vectors, payloads=payloads)
+            
+            # Use the public upsert method with Batch object
+            self.client.upsert(
+                collection_name=collection_name,
+                points=batch
+            )
+            
+            logger.info(f"Upserted {len(documents)} documents to collection '{collection_name}'")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to upsert documents: {e}")
+            return False
 
     def get_document(self, collection_name: str, document_id: str) -> Optional[Dict[str, Any]]:
         """

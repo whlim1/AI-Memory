@@ -53,6 +53,26 @@
 | `config/` | Config file backups |
 | `qdrant/` | Qdrant snapshot backups |
 
+## Documentation (by Category)
+
+### Getting Started
+| File | Description |
+|------|-------------|
+| `README.md` | Project overview and setup |
+| `docs/QUICK_START.md` | Step-by-step installation guide |
+
+### Operations & Maintenance
+| File | Description |
+|------|-------------|
+| `docs/MONITORING_GUIDE.md` | Health checks, metrics, alerting |
+| `docs/BACKUP_RESTORE.md` | Backup procedures and recovery |
+| `docs/LM_STUDIO_CONFIG.md` | LM Studio integration guide |
+
+### Mobile Access
+| File | Description |
+|------|-------------|
+| **`docs/MOBILE_QUICK_REFERENCE.md`** | **Android remote access guide (MagicDNS)** |
+
 ## External References
 
 | Resource | URL |

@@ -41,6 +41,23 @@ class _StubPointStruct:
         self.payload = payload or {}
 
 
+class _StubScoredPoint:
+    """Stub for qdrant_client.models.ScoredPoint."""
+    def __init__(self, id=None, score=0.0, version=None, payload=None, vector=None, shard_key=None, payload_bytes=None):
+        self.id = id
+        self.score = score
+        self.version = version
+        self.payload = payload or {}
+        self.vector = vector
+        self.shard_key = shard_key
+        self.payload_bytes = payload_bytes
+
+
+class _StubDistance:
+    """Stub for qdrant_client.models.Distance enum."""
+    pass
+
+
 def _install_qdrant_stubs():
     if "qdrant_client" in sys.modules and getattr(
         sys.modules["qdrant_client"], "_is_stub", False
@@ -53,6 +70,8 @@ def _install_qdrant_stubs():
     models_mod.FieldCondition = _StubFieldCondition
     models_mod.MatchValue = _StubMatchValue
     models_mod.PointStruct = _StubPointStruct
+    models_mod.ScoredPoint = _StubScoredPoint
+    models_mod.Distance = _StubDistance
 
     client_mod = types.ModuleType("qdrant_client")
     client_mod.models = models_mod
@@ -93,7 +112,18 @@ def _install_qdrant_stubs():
             **kw,
         ):
             self.calls.append(("search", collection_name, query_vector, limit))
-            raise RuntimeError("stub: no results")
+            return []  # Return empty list instead of raising
+
+        def query_points(
+            self,
+            collection_name=None,
+            query=None,
+            limit=10,
+            with_payload=True,
+            **kw,
+        ):
+            self.calls.append(("query_points", collection_name, query, limit))
+            return []  # Return empty list for similar search
 
         def get_points(self, collection_name=None, ids=None, with_payload=True, **kw):
             self.calls.append(("get_points", collection_name, ids))

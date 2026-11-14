@@ -7,7 +7,7 @@ get_collections/search. Tests monkeypatch instance methods to exercise both
 success and failure paths without a live Qdrant server.
 """
 
-from ai_memory_pipeline.qdrant_client import QdrantManager
+from ai_memory_pipeline.qdrant_client_wrapper import QdrantManager
 
 
 class _FakeHit:

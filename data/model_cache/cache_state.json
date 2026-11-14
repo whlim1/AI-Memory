@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-11-14T08:35:24.047175",
+  "models": {
+    "test-model": {
+      "model_id": "test-model",
+      "model_name": "Test Model",
+      "status": "warm",
+      "last_used": "2026-11-14T08:35:24.047145+00:00",
+      "usage_count": 0,
+      "estimated_vram_usage": 1.5,
+      "load_time_seconds": 0.0
+    }
+  },
+  "model_order": []
+}
