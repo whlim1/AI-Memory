@@ -1,47 +1,54 @@
 # =============================================================================
-# Qdrant — AI Memory & Retrieval Platform (Component 1)
+# AI Memory Pipeline - Full Production Deployment
 # =============================================================================
-# Design refs : D:\AI-Memory\System-Architecture.md (Component 1)
-#               D:\AI-Memory\Decisions.md (D-001 local-first, D-002 Qdrant)
-# Task        : 2.2 (docker-compose.yml)
+# Design refs : D:\AI-Memory\System-Architecture.md
+#               D:\AI-Memory\Decisions.md
 #
-# Host paths (all on the local C: drive — D:\ is an SMB share and is not
-# reliable for Docker bind mounts):
-#   Storage : C:\docker\qdrant\storage   vectors + WAL + snapshots
-#   Config  : C:\docker\qdrant\config    config.yaml (task 2.3)
-#   Backups : C:\docker\qdrant\backups   snapshot retention (7 days)
-#   Scripts : C:\docker\qdrant\scripts   health/startup/backup/restore/maint
-#   Logs    : C:\docker\qdrant\logs      script + operational logs
-#
-# IMPORTANT: config.yaml must exist before first start (task 2.3). An empty
-# config mount would hide the image's default config and Qdrant will not boot.
+# Architecture: NAS-hosted deployment
+#   - All services run on NAS (192.168.0.16)
+#   - Qdrant for vector storage and retrieval
+#   - Pipeline services for processing documents
+#   - Shared memory access via \\192.168.0.16\SharedMemory
 #
 # Usage:
-#   docker compose up -d            start
-#   docker compose ps               status
-#   docker compose logs -f qdrant   logs
-#   docker compose down             stop (data persists in C:\docker\qdrant)
+#   docker compose up -d            # Start all services
+#   docker compose ps               # Check status
+#   docker compose logs -f <service> # Monitor logs
+#   docker compose down             # Stop (data persists)
 # =============================================================================
 
+version: '3.8'
+
 services:
+  # =============================================================================
+  # Qdrant - Vector Database (Primary Storage Layer)
+  # Location: NAS /docker/qdrant
+  # Volumes: Host paths mapped to container
+  # =============================================================================
   qdrant:
     image: qdrant-custom:v1.7.0
-    container_name: qdrant
+    container_name: ai-memory-qdrant
     ports:
       - "6333:6333"   # HTTP REST API
       - "6334:6334"   # gRPC API
+      - "6335:6335"   # P2P Communication (for cluster mode)
     volumes:
-      - C:/docker/qdrant/storage:/qdrant/storage
-      - C:/docker/qdrant/config:/qdrant/config:ro
+      # Vector storage, WAL, and snapshots
+      - /docker/qdrant/storage:/qdrant/storage
+      # Configuration (read-only from host)
+      - /docker/qdrant/config:/qdrant/config:ro
+      # Backups for disaster recovery
+      - /docker/qdrant/backups:/qdrant/backups
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=info
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     logging:
       driver: json-file
@@ -51,7 +58,59 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.0"
-          memory: 2g
+          cpus: "4.0"
+          memory: 8g
         reservations:
-          memory: 512m
+          memory: 2g
+
+# =============================================================================
+# AI Memory Pipeline - Shared Services Container
+# Location: NAS (all services in single container for simplicity)
+# Mounts: SharedMemory and repositories accessible via SMB paths
+# =============================================================================
+  ai-memory-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile.pipeline
+    container_name: ai-memory-pipeline
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    volumes:
+      # Shared memory for you and your wife (read-write)
+      - /SharedMemory:/shared_memory:rw
+      # Pipeline logs
+      - /docker/ai-memory/logs:/app/logs:rw
+      # Configuration from NAS
+      - /docker/ai-memory/config:/app/config:ro
+    environment:
+      # Qdrant connection (same host, use container name)
+      - QDRANT_URL=http://qdrant:6333
+      # Shared memory paths
+      - SHARED_MEMORY_PATH=/shared_memory
+      - MY_DOCUMENTS=/shared_memory/me
+      - WIFE_DOCUMENTS=/shared_memory/wife
+      - SHARED_DOCUMENTS=/shared_memory/shared
+      # LM Studio connection (NAS localhost)
+      - LM_STUDIO_URL=http://localhost:1234
+      # Processing configuration
+      - CHUNK_SIZE=500
+      - CHUNK_OVERLAP=50
+      - VECTOR_SIZE=768
+      - EXACT_THRESHOLD=0.95
+      - FUZZY_THRESHOLD=0.85
+      # Logging
+      - LOG_LEVEL=info
+    ports:
+      - "8000:8000"   # API Gateway
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: ai-memory-network
+    driver: bridge
