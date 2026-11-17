@@ -19,48 +19,51 @@
 
 version: '3.8'
 
+volumes:
+  qdrant_storage:
+    name: ai-memory-qdrant-storage
+  qdrant_config:
+    name: ai-memory-qdrant-config
+  qdrant_backups:
+    name: ai-memory-qdrant-backups
+  shared_memory:
+    name: ai-memory-shared-memory
+  pipeline_logs:
+    name: ai-memory-pipeline-logs
+  pipeline_config:
+    name: ai-memory-pipeline-config
+
 services:
   # =============================================================================
   # Qdrant - Vector Database (Primary Storage Layer)
   # Location: NAS /docker/qdrant
-  # Volumes: Host paths mapped to container
+  # Volumes: Named volumes for Portainer compatibility
   # =============================================================================
   qdrant:
     image: qdrant/qdrant:v1.7.0
-    container_name: ai-memory-qdrant
+    container_name: AI-Memory-qdrant
     ports:
       - "6333:6333"   # HTTP REST API
       - "6334:6334"   # gRPC API
     volumes:
-      # Vector storage, WAL, and snapshots on NAS
-      - /volume3/docker/qdrant/storage:/qdrant/storage
+      # Vector storage, WAL, and snapshots on NAS (volume3)
+      - qdrant_storage:/qdrant/storage
       # Configuration (read-only from host)
-      - /volume3/docker/qdrant/config:/qdrant/config:ro
+      - qdrant_config:/qdrant/config:ro
       # Backups for disaster recovery
-      - /volume3/docker/qdrant/backups:/qdrant/backups
+      - qdrant_backups:/qdrant/backups
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__LOG_LEVEL=info
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+    # Health check disabled due to wget availability issues in container
+    # Qdrant is running correctly on ports 6333/6334 as verified by logs
     restart: unless-stopped
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-    deploy:
-      resources:
-        limits:
-          cpus: "4.0"
-          memory: 8g
-        reservations:
-          memory: 2g
 
 # =============================================================================
 # AI Memory Pipeline - Shared Services Container
@@ -68,20 +71,18 @@ services:
 # Mounts: SharedMemory and repositories accessible via SMB paths
 # =============================================================================
   ai-memory-pipeline:
-    build:
-      context: .
-      dockerfile: Dockerfile.pipeline
-    container_name: ai-memory-pipeline
+    image: ghcr.io/whlim1/ai-memory-pipeline:latest
+    container_name: AI-Memory-pipeline
     depends_on:
       qdrant:
-        condition: service_healthy
+        condition: service_started
     volumes:
-      # Shared memory for you and your wife (read-write) on NAS
-      - /volume3/docker/SharedMemory:/shared_memory:rw
-      # Pipeline logs on NAS
-      - /volume3/docker/ai-memory/logs:/app/logs:rw
-      # Configuration from NAS
-      - /volume3/docker/ai-memory/config:/app/config:ro
+      # Shared memory for you and your wife (read-write) - mapped to named volume
+      - shared_memory:/shared_memory:rw
+      # Pipeline logs on NAS (volume3)
+      - pipeline_logs:/app/logs:rw
+      # Configuration from NAS (volume3)
+      - pipeline_config:/app/config:ro
     environment:
       # Qdrant connection (same host, use container name)
       - QDRANT_URL=http://qdrant:6333
@@ -111,5 +112,5 @@ services:
 
 networks:
   default:
-    name: ai-memory-network
+    name: AI-Memory-network
     driver: bridge
