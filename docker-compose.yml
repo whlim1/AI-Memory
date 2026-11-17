@@ -102,7 +102,7 @@ services:
       # Logging
       - LOG_LEVEL=info
     ports:
-      - "8000:8000"   # API Gateway
+      - "8001:8000"   # API Gateway (changed from 8000 to avoid conflict with Portainer internal service)
     restart: unless-stopped
     logging:
       driver: json-file
