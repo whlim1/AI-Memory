@@ -2,6 +2,10 @@
 # =============================================================================
 # Deploy AI Memory Pipeline to Synology NAS
 # =============================================================================
+# Volume mapping:
+#   /volume1/SharedMemory → Shared memory (me/wife documents)
+#   /volume3/docker/*     → Docker/container project data
+# =============================================================================
 
 set -e
 
@@ -40,7 +44,7 @@ sleep 5
 # Check status
 echo ""
 echo "=== Container Status ==="
-docker ps --filter "name=ai-memory" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter "name=AI-Memory" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # Verify health
 echo ""

@@ -30,3 +30,24 @@ opencode/.env
 # Build artifacts
 *.log
 .pytest_cache/
+
+# Root-level scratch / iteration scripts (one-off deploy & debug attempts — do not commit)
+/*.ps1
+/*.bat
+/test_infisical.py
+/build_phase5_images.sh
+/deploy-on-nas.sh
+/deploy-portainer.sh
+/run-as-inf-nas.sh
+/setup-docker-perms.sh
+/stop-containers.sh
+
+# Stale root compose variant (hardcoded Grafana password; canonical copy lives in Monitoring/)
+/docker-compose.monitoring.infisical.yml
+
+# Monitoring: commit only the canonical deployment files (everything else is scratch)
+Monitoring/*
+!Monitoring/docker-compose.monitoring.yml
+!Monitoring/docker-compose.monitoring.infisical.yml
+!Monitoring/prometheus.yml
+!Monitoring/PHASE5_DEPLOYMENT.md

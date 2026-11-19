@@ -37,7 +37,10 @@ A Python-based document processing and indexing pipeline with Qdrant vector stor
     ├── DEPLOYMENT_CHECKLIST.md # Deployment checklist
     ├── MONITORING_GUIDE.md     # Monitoring and alerting
     ├── BACKUP_RESTORE.md       # Backup procedures
-    └── LM_STUDIO_SETUP.md      # LM Studio configuration
+    ├── LM_STUDIO_SETUP.md      # LM Studio configuration
+    ├── MOBILE_USER_GUIDE.md    # Android-first mobile user guide
+    ├── MOBILE_QUICK_REFERENCE.md # Mobile URLs and quick commands
+    └── MOBILE_ACCESS_CHECKLIST.md # Mobile access verification checklist
 ```
 
 ## Documentation
@@ -49,6 +52,9 @@ A Python-based document processing and indexing pipeline with Qdrant vector stor
 | **MONITORING_GUIDE.md** | VRAM monitoring, alerting thresholds, and health checks |
 | **BACKUP_RESTORE.md** | Complete backup and restore procedures |
 | **LM_STUDIO_SETUP.md** | LM Studio model configuration guide |
+| **MOBILE_USER_GUIDE.md** | Android-first guide: OpenWebUI, Obsidian Mobile, voice capture |
+| **MOBILE_QUICK_REFERENCE.md** | All service URLs, app setup steps, and quick commands |
+| **MOBILE_ACCESS_CHECKLIST.md** | Verify mobile access end-to-end (ports, RAG, voice, sync) |
 
 ## Getting Started
 
@@ -113,6 +119,9 @@ For detailed instructions, see:
 - **[Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md)** - Comprehensive verification procedures
 - **[Monitoring Guide](docs/MONITORING_GUIDE.md)** - VRAM monitoring, alerting, and health checks
 - **[Backup & Restore](docs/BACKUP_RESTORE.md)** - Complete backup procedures and disaster recovery
+- **[Mobile User Guide](docs/MOBILE_USER_GUIDE.md)** - Android-first setup for OpenWebUI, Obsidian, and voice
+- **[Mobile Quick Reference](docs/MOBILE_QUICK_REFERENCE.md)** - Service URLs and quick commands
+- **[Mobile Access Checklist](docs/MOBILE_ACCESS_CHECKLIST.md)** - End-to-end mobile access verification
 
 ## Development Setup
 
