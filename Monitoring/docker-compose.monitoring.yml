@@ -62,7 +62,8 @@ services:
       - EQM_HISTORY_SIZE=1000
       - QDRANT_HOST=192.168.0.16
       - QDRANT_PORT=6333
-    restart: unless-stopped
+    # One-shot demo: runs to completion and exits 0. Do not auto-restart.
+    restart: "no"
     networks:
       - monitoring
 
@@ -74,10 +75,12 @@ services:
       - MCM_MAX_CACHE_SIZE=2
       - MCM_EVICTION_POLICY=lru
       - MCM_PERSIST_CACHE=true
-      - LM_STUDIO_URL=http://host.docker.internal:1234
+      # LM Studio runs on the inference PC (this Windows host), not the NAS.
+      - LM_STUDIO_URL=http://192.168.0.19:1234
       # Authentication for GHCR image pull (if private)
       - IMAGE_PULL_REGISTRY=ghcr.io
-    restart: unless-stopped
+    # One-shot demo: runs to completion and exits 0. Do not auto-restart.
+    restart: "no"
     networks:
       - monitoring
 
@@ -90,7 +93,8 @@ services:
       - DCS_OVERLAP_RATIO=0.1
       - DCS_CODE_CHUNK_SIZE=300
       - DCS_PROSE_CHUNK_SIZE=600
-    restart: unless-stopped
+    # One-shot demo: runs to completion and exits 0. Do not auto-restart.
+    restart: "no"
     networks:
       - monitoring
 
