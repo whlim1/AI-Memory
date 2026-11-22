@@ -1,0 +1,56 @@
+# =============================================================================
+# AI Memory Pipeline - Obsidian Sync Engine
+# =============================================================================
+# Watches an Obsidian vault directory for Markdown file changes
+# and syncs to Qdrant vector store + LM Studio embeddings.
+# =============================================================================
+
+version: '3.8'
+
+services:
+  sync-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.sync_engine
+    container_name: AI-Memory-sync-engine
+    volumes:
+      # Mount the Obsidian vault directory (update path to match your setup)
+      - /volume3/obsidian-vault:/app/data/vault:rw
+      # Persist knowledge graph state
+      - sync_engine_graph:/app/data/graph:rw
+      # Persist sync state (file hashes, last-sync timestamps)
+      - sync_engine_state:/app/data/state:rw
+    environment:
+      # Qdrant connection
+      - QDRANT_URL=http://192.168.0.16:6333
+      # LM Studio connection (Windows host on network)
+      - LM_STUDIO_URL=http://192.168.0.19:1234
+      # Vault configuration
+      - VAULT_PATH=/app/data/vault
+      - GRAPH_PATH=/app/data/graph
+      - STATE_PATH=/app/data/state
+      # Processing configuration
+      - CHUNK_SIZE=500
+      - CHUNK_OVERLAP=50
+      - VECTOR_SIZE=768
+      - SYNC_POLL_INTERVAL=5
+      # Logging
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - ai-memory
+
+volumes:
+  sync_engine_graph:
+    name: ai-memory-sync-engine-graph
+  sync_engine_state:
+    name: ai-memory-sync-engine-state
+
+networks:
+  ai-memory:
+    external: true
