@@ -486,3 +486,40 @@ class ObsidianSyncEngine:
         except Exception as e:
             logger.error(f"Failed to delete chunks for doc_id {doc_id}: {e}")
             return False
+
+
+# =============================================================================
+# Entry point
+# =============================================================================
+
+if __name__ == "__main__":
+    import signal
+    import sys
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
+    vault_path = os.environ.get("OBSIDIAN_VAULT_PATH", "/app/data/vault")
+    engine = ObsidianSyncEngine(vault_path=vault_path)
+
+    stop_event = threading.Event()
+
+    def handle_signal(signum, frame):
+        logger.info(f"Received signal {signum}, shutting down…")
+        stop_event.set()
+
+    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    engine.start()
+    logger.info("Sync engine started — waiting for changes")
+
+    # Block until a shutdown signal arrives
+    while not stop_event.is_set():
+        stop_event.wait(timeout=5)
+
+    engine.stop()
+    logger.info("Sync engine stopped")
+    sys.exit(0)
