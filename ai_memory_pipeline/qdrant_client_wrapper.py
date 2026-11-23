@@ -68,7 +68,7 @@ class QdrantManager:
         try:
             self.client.recreate_collection(
                 collection_name=collection_name,
-                vectors_config=VectorParams(size=vector_size, distance=distance)
+                vectors_config={"size": vector_size, "distance": distance}
             )
             logger.info(f"Created collection '{collection_name}' with vector size {vector_size}")
             return True
