@@ -29,6 +29,7 @@ from urllib.parse import urlparse
 
 from ..metadata import DocumentMetadata
 from ..qdrant_client_wrapper import QdrantManager
+from ..services import ai_categorization_service
 from .content_processor import ContentProcessor, NoteContent
 from .graph_builder import KnowledgeGraphBuilder
 from .vault_watcher import VaultEvent, VaultFileEvent, VaultWatcher, compute_file_hash
@@ -144,6 +145,11 @@ class ObsidianSyncEngine:
         self.watcher = watcher or VaultWatcher(
             vault_path=str(self.vault_path),
             poll_interval=self.sync_interval,
+        )
+        lm_url = os.getenv("LM_STUDIO_URL", DEFAULT_LM_STUDIO_URL)
+        host, port = _parse_lm_studio_url(lm_url)
+        self.ai_categorizer = ai_categorization_service.AICategorizationService(
+            host=host, port=port,
         )
         self._qdrant = qdrant
         self._embedder = embedder
@@ -437,24 +443,60 @@ class ObsidianSyncEngine:
 
     def _auto_categorize(self, note: NoteContent) -> None:
         """
-        Assign a category to notes that lack one.
+        Assign a category and extract entities for notes that lack one.
 
-        Priority: frontmatter 'category' > first tag > top-level vault
-        folder > "uncategorized".
+        Uses AICategorizationService (LM Studio) with graceful fallback to
+        the heuristic approach if the AI service is unavailable.
+
+        Priority: frontmatter 'category' > AI categorization > first tag >
+        top-level vault folder > "uncategorized".
         """
+        # Skip if the note already has an explicit category
+        if note.frontmatter.get("category"):
+            return
+
+        # If AI categorization is disabled, fall back to heuristic
         if not self.auto_categorize:
             return
 
-        category = note.frontmatter.get("category")
-        if not category:
-            if note.tags:
-                category = note.tags[0]
-            elif "/" in note.relative_path:
-                category = note.relative_path.split("/", 1)[0]
-            else:
-                category = "uncategorized"
+        # Try AI-powered categorization
+        try:
+            result = self.ai_categorizer.categorize_note(
+                title=note.title,
+                content=note.content,
+                existing_tags=note.tags,
+            )
+            if result and result.category:
+                note.frontmatter["category"] = result.category
+                note.entities = result.entities
+                note.confidence = result.confidence
+                note.ai_reasoning = result.reasoning
+                # Add AI-suggested tags if any
+                if result.suggested_tags:
+                    for tag in result.suggested_tags:
+                        if tag not in note.tags:
+                            note.tags.append(tag)
+                logger.debug(
+                    "AI categorized '%s' as '%s' (confidence: %.2f)",
+                    note.relative_path, result.category, result.confidence,
+                )
+                return
+        except Exception as exc:
+            logger.warning(
+                "AI categorization failed for '%s': %s — falling back to heuristic",
+                note.relative_path, exc,
+            )
 
-        if category not in note.tags:
+        # Fallback: heuristic categorization
+        category = None
+        if note.tags:
+            category = note.tags[0]
+        elif "/" in note.relative_path:
+            category = note.relative_path.split("/", 1)[0]
+        else:
+            category = "uncategorized"
+
+        if category and category not in note.tags:
             note.tags.append(category)
         note.frontmatter.setdefault("category", category)
 

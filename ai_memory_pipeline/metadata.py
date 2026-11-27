@@ -25,7 +25,12 @@ class DocumentMetadata:
                  updated_at: datetime = None,
                  source: str = '',
                  tags: List[str] = None,
-                 custom_fields: Dict[str, Any] = None):
+                 custom_fields: Dict[str, Any] = None,
+                 category: str = '',
+                 subcategories: List[str] = None,
+                 entities: Dict[str, List[str]] = None,
+                 confidence: float = 0.0,
+                 ai_reasoning: str = ''):
         """
         Initialize document metadata.
 
@@ -73,7 +78,12 @@ class DocumentMetadata:
             'updated_at': self.updated_at.isoformat(),
             'source': self.source,
             'tags': self.tags,
-            'custom_fields': self.custom_fields
+            'custom_fields': self.custom_fields,
+            'category': self.category,
+            'subcategories': self.subcategories,
+            'entities': self.entities,
+            'confidence': self.confidence,
+            'ai_reasoning': self.ai_reasoning,
         }
 
     @classmethod
@@ -99,7 +109,12 @@ class DocumentMetadata:
             updated_at=updated_at,
             source=data.get('source', ''),
             tags=data.get('tags', []),
-            custom_fields=data.get('custom_fields', {})
+            custom_fields=data.get('custom_fields', {}),
+            category=data.get('category', ''),
+            subcategories=data.get('subcategories', []),
+            entities=data.get('entities', {}),
+            confidence=data.get('confidence', 0.0),
+            ai_reasoning=data.get('ai_reasoning', '')
         )
 
     def update(self, **kwargs) -> None:

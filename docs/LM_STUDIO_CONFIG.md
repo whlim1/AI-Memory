@@ -5,7 +5,7 @@ This document describes the LM Studio configuration for the AI Memory Pipeline.
 
 ## Prerequisites
 - LM Studio installed and running on localhost:1234
-- Models loaded: Qwen3-Coder-Next-UD (chat) and Qwen3-Embedding-8B (embeddings)
+- Models loaded: qwen/qwen3.6-35b-a3b (chat), text-embedding-qwen3-embedding-8b (embeddings), deepseek-r1-distill-qwen-32b (reasoning)
 - Network access to localhost:1234
 
 ## Configuration Files
@@ -14,8 +14,10 @@ This document describes the LM Studio configuration for the AI Memory Pipeline.
 ```json
 {
   "api_url": "http://localhost:1234",
-  "default_chat_model": "qwen3-coder-next",
+  "default_chat_model": "qwen/qwen3.6-35b-a3b",
   "default_embedding_model": "text-embedding-qwen3-embedding-8b",
+  "default_reasoning_model": "deepseek-r1-distill-qwen-32b",
+  "default_code_model": "qwen3-coder-next",
   "timeout_seconds": 60,
   "max_retries": 3
 }
@@ -23,14 +25,24 @@ This document describes the LM Studio configuration for the AI Memory Pipeline.
 
 ### Model Configuration
 
-#### Chat Model: qwen3-coder-next
-- **Purpose**: Code generation, natural language processing
-- **Context Window**: Up to 128K tokens
+#### Chat Model: qwen/qwen3.6-35b-a3b (default)
+- **Purpose**: General chat, document summarization, content generation
+- **Alternative chat**: `qwen3.8-flash-next` (faster), `qwen3.8-27b` (lighter)
+- **Context Window**: Up to 131K tokens
 - **Use Cases**: Document summarization, code comments, content generation
 
-#### Embedding Model: text-embedding-qwen3-embedding-8b
+#### Reasoning Model: deepseek-r1-distill-qwen-32b
+- **Purpose**: Complex reasoning, multi-step problem solving
+- **Alternative**: `qwen3.5-14b-a3b-claude-4.6-opus-reasoning-distilled-reap` (lighter reasoning)
+
+#### Code Model: qwen3-coder-next
+- **Purpose**: Code generation, code review, development tasks
+- **Alternative**: `qwen3-coder-30b-a3b-instruct` (larger, more capable)
+
+#### Embedding Model: text-embedding-qwen3-embedding-8b (default)
 - **Vector Dimensions**: 4096
 - **Max Input Length**: 8192 tokens
+- **Alternative**: `text-embedding-bge-m3` (multi-lingual), `text-embedding-nomic-embed-text-v1.5` (lightweight)
 - **Use Cases**: Semantic search, vector storage in Qdrant
 
 ## LM Studio Model Switcher
@@ -46,8 +58,10 @@ This document describes the LM Studio configuration for the AI Memory Pipeline.
 {
   "lm_studio": {
     "base_url": "http://localhost:1234",
-    "chat_model_name": "qwen3-coder-next",
-    "embedding_model_name": "text-embedding-qwen3-embedding-8b"
+    "chat_model_name": "qwen/qwen3.6-35b-a3b",
+    "embedding_model_name": "text-embedding-qwen3-embedding-8b",
+    "reasoning_model_name": "deepseek-r1-distill-qwen-32b",
+    "code_model_name": "qwen3-coder-next"
   }
 }
 ```

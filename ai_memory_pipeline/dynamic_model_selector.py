@@ -2,7 +2,7 @@
 Dynamic Model Selector
 
 Intelligently selects the best LLM based on task requirements, model capabilities,
-and user preferences. Supports both local (LM Studio) and remote (OpenRouter) providers.
+and user preferences. Supports both local (LM Studio) and remote (LiteLLM) providers.
 
 Strategy:
 1. Task Type -> Required Capabilities
@@ -31,7 +31,7 @@ class TaskType(Enum):
 class ProviderType(Enum):
     """LLM Provider Types."""
     LM_STUDIO = "lmstudio"
-    OPENROUTER = "openrouter"
+    LITELLM = "litellm"
     LOCAL = "local"
 
 
@@ -49,27 +49,27 @@ class ModelCapabilities:
 # Predefined model capabilities database
 MODEL_CAPABILITIES_DB = {
     # Chat Models (General Purpose)
-    "lmstudio-qwen3-27b": {
+    "qwen/qwen3.6-35b-a3b": {
         "provider": ProviderType.LM_STUDIO,
         "context_window": 32768,
         "capabilities": [TaskType.CHAT, TaskType.RAG, TaskType.SUMMARIZATION],
         "strengths": ["conversational", "general-purpose", "balanced"],
     },
-    "openrouter/qwen/qwen-2.5-32b": {
-        "provider": ProviderType.OPENROUTER,
+    "openai/qwen-2.5-32b": {
+        "provider": ProviderType.LITELLM,
         "context_window": 32768,
         "capabilities": [TaskType.CHAT, TaskType.RAG, TaskType.SUMMARIZATION],
         "strengths": ["conversational", "code-aware", "multi-lingual"],
     },
     
     # Coding Models
-    "openrouter/codestral/codestral-latest": {
-        "provider": ProviderType.OPENROUTER,
+    "qwen3-coder-next": {
+        "provider": ProviderType.LITELLM,
         "context_window": 256000,
         "capabilities": [TaskType.CODING, TaskType.CHAT],
         "strengths": ["code generation", "debugging", "optimization"],
     },
-    "lmstudio-codestral": {
+    "qwen3-coder-30b-a3b-instruct": {
         "provider": ProviderType.LM_STUDIO,
         "context_window": 32768,
         "capabilities": [TaskType.CODING, TaskType.CHAT],
@@ -77,30 +77,30 @@ MODEL_CAPABILITIES_DB = {
     },
     
     # Reasoning Models
-    "openrouter/deepseek/deepseek-r1": {
-        "provider": ProviderType.OPENROUTER,
+    "openai/deepseek-r1": {
+        "provider": ProviderType.LITELLM,
         "context_window": 65536,
         "capabilities": [TaskType.REASONING, TaskType.CHAT],
         "strengths": ["step-by-step reasoning", "math", "logic"],
     },
     
     # Embedding Models
-    "nomic-embed-text-v1.5": {
+    "text-embedding-nomic-embed-text-v1.5": {
         "provider": ProviderType.LOCAL,
         "context_window": 8192,
         "capabilities": [TaskType.EMBEDDING],
         "strengths": ["dense embeddings", "semantic search"],
     },
-    "openrouter/thenlper/gte-large": {
-        "provider": ProviderType.OPENROUTER,
+    "openai/thenlper/gte-large": {
+        "provider": ProviderType.LITELLM,
         "context_window": 512,
         "capabilities": [TaskType.EMBEDDING],
         "strengths": ["reranking", "semantic similarity"],
     },
     
     # Specialized Models
-    "openrouter/mistralai/mixtral-8x7b-instruct": {
-        "provider": ProviderType.OPENROUTER,
+    "openai/mistralai/mixtral-8x7b-instruct": {
+        "provider": ProviderType.LITELLM,
         "context_window": 32768,
         "capabilities": [TaskType.CHAT, TaskType.CONVERSATION_HISTORY],
         "strengths": ["chat history tracking", "multi-turn"],
@@ -126,9 +126,9 @@ class DynamicModelSelector:
         """Initialize the dynamic model selector."""
         self.strategy = os.getenv("LLM_SELECTION_STRATEGY", "auto")
         self.fallback_chain = [
-            "lmstudio-qwen3-27b",
-            "openrouter/qwen/qwen-2.5-32b",
-            "openrouter/mistralai/mixtral-8x7b-instruct",
+            "qwen/qwen3.6-35b-a3b",
+            "openai/qwen-2.5-32b",
+            "openai/mistralai/mixtral-8x7b-instruct",
         ]
         
     def _get_available_models(self) -> List[str]:
@@ -164,7 +164,7 @@ class DynamicModelSelector:
             preferred_model: Optional user-specified model override
             
         Returns:
-            Model ID string (e.g., "lmstudio-qwen3-27b")
+            Model ID string (e.g., "qwen/qwen3.6-35b-a3b")
         """
         # 1. Check for explicit preference
         if preferred_model and preferred_model in MODEL_CAPABILITIES_DB:
@@ -220,12 +220,12 @@ class DynamicModelSelector:
         if self.strategy == "auto":
             return self.select(TaskType.RAG)
         
-        return os.getenv("DEFAULT_CHAT_MODEL", "lmstudio-qwen3-27b")
+        return os.getenv("DEFAULT_CHAT_MODEL", "qwen/qwen3.6-35b-a3b")
     
     def select_for_embedding(self) -> str:
         """Select optimal embedding model."""
         # Prioritize local embeddings for privacy and speed
-        preferred = os.getenv("DEFAULT_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
+        preferred = os.getenv("DEFAULT_EMBEDDING_MODEL", "text-embedding-nomic-embed-text-v1.5")
         
         if preferred in MODEL_CAPABILITIES_DB:
             return preferred

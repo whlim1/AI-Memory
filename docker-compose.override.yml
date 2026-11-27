@@ -5,8 +5,6 @@
 # Usage: docker compose -f docker-compose.yml -f docker-compose.override.yml up
 # =============================================================================
 
-version: '3.8'
-
 services:
   deduplication:
     build:
@@ -49,12 +47,3 @@ services:
       - QDRANT_URL=http://host.docker.internal:6333
       - LM_STUDIO_URL=http://host.docker.internal:1234
       - LOG_LEVEL=debug
-
-  api-gateway:
-    ports:
-      - "8000:8000"
-    environment:
-      - DEDUP_URL=http://host.docker.internal:8001
-      - CHUNKING_URL=http://host.docker.internal:8002
-      - EMBEDDING_URL=http://host.docker.internal:8003
-      - MODEL_CACHE_URL=http://host.docker.internal:8004

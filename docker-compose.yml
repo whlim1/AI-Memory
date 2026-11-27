@@ -17,8 +17,6 @@
 #   docker compose down             # Stop (data persists)
 # =============================================================================
 
-version: '3.8'
-
 volumes:
   qdrant_storage:
     name: ai-memory-qdrant-storage
@@ -91,8 +89,8 @@ services:
       - MY_DOCUMENTS=/shared_memory/me
       - WIFE_DOCUMENTS=/shared_memory/wife
       - SHARED_DOCUMENTS=/shared_memory/shared
-      # LM Studio connection (Windows host on network)
-      - LM_STUDIO_URL=http://192.168.0.19:1234
+      # LM Studio connection (Windows host on network - set via .env)
+      - LM_STUDIO_URL=${LM_STUDIO_URL}
       # Processing configuration
       - CHUNK_SIZE=500
       - CHUNK_OVERLAP=50
@@ -109,6 +107,9 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+# OpenWebUI is deployed as a separate stack (open-webui project) for independent lifecycle.
+# To integrate it into this compose file, add here with OLLAMA_BASE_URL available in environment.
 
 networks:
   default:

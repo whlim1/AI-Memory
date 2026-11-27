@@ -64,6 +64,11 @@ class NoteContent:
     # Chunking output
     chunks: List[Chunk] = field(default_factory=list)
 
+    # AI categorization output
+    entities: Optional[Dict[str, List[str]]] = None
+    confidence: Optional[float] = None
+    ai_reasoning: Optional[str] = None
+
     @property
     def word_count(self) -> int:
         return len(self.body.split())

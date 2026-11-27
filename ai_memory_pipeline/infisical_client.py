@@ -34,13 +34,56 @@ class InfisicalClient:
         self.project_id = project_id
         self.client_id = client_id
         self.secret_key = secret_key
+        self._access_token = None
         
+    def _authenticate(self) -> str:
+        """
+        Exchange client_id + secret_key for a bearer token via service account flow.
+        
+        Returns:
+            Access token string
+            
+        Raises:
+            Exception: If authentication fails
+        """
+        if not self.client_id or not self.secret_key:
+            raise Exception("Client ID and secret key are required for authentication")
+        
+        auth_url = f"{self.url}/api/v1/service-account-keys/generate-access-token"
+        auth_data = json.dumps({
+            "clientID": self.client_id,
+            "clientSecret": self.secret_key
+        }).encode('utf-8')
+        
+        headers = {'Content-Type': 'application/json'}
+        request = urllib.request.Request(auth_url, method='POST', headers=headers, data=auth_data)
+        
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                result = json.loads(response.read().decode())
+                self._access_token = result['accessToken']
+                return self._access_token
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode() if hasattr(e, 'read') else ''
+            raise Exception(f"Authentication failed: {e.code} {e.reason} - {error_body}")
+        except Exception as e:
+            raise Exception(f"Authentication request failed: {e}")
+    
+    def _get_auth_headers(self) -> dict:
+        """Get headers with valid authentication token."""
+        headers = {'Content-Type': 'application/json'}
+        if self.client_id and self.secret_key:
+            if not self._access_token:
+                self._authenticate()
+            headers['Authorization'] = f'Bearer {self._access_token}'
+        return headers
+    
     def _make_request(self, endpoint: str, method: str = 'GET', data: dict = None) -> dict:
         """
         Make a request to the Infisical API.
         
         Args:
-            endpoint: API endpoint (e.g., /api/v1/secrets)
+            endpoint: API endpoint (e.g., /api/v1/projects/{projectId}/secrets)
             method: HTTP method
             data: Request body for POST/PUT requests
             
@@ -48,15 +91,7 @@ class InfisicalClient:
             JSON response as dictionary
         """
         url = f"{self.url}{endpoint}"
-        headers = {
-            'Content-Type': 'application/json',
-        }
-        
-        # Add authentication headers if available
-        if self.client_id and self.secret_key:
-            headers['X-Infisical-Project-ID'] = self.project_id
-            headers['X-Infisical-Client-ID'] = self.client_id
-            headers['X-Infisical-Client-Secret'] = self.secret_key
+        headers = self._get_auth_headers()
         
         body = json.dumps(data).encode('utf-8') if data else None
         
@@ -66,9 +101,17 @@ class InfisicalClient:
             with urllib.request.urlopen(request, timeout=10) as response:
                 return json.loads(response.read().decode())
         except urllib.error.HTTPError as e:
+            error_body = e.read().decode() if hasattr(e, 'read') else ''
             print(f"HTTP Error {e.code}: {e.reason}")
-            if hasattr(e, 'read'):
-                print(f"Response: {e.read().decode()}")
+            print(f"Response: {error_body}")
+            # If token is expired/invalid, try re-authenticating once
+            if e.code in (401, 403) and self.client_id and self.secret_key:
+                self._access_token = None
+                self._authenticate()
+                headers = self._get_auth_headers()
+                request = urllib.request.Request(url, method=method, headers=headers, data=body)
+                with urllib.request.urlopen(request, timeout=10) as response:
+                    return json.loads(response.read().decode())
             raise
         except Exception as e:
             print(f"Request failed: {e}")
@@ -84,40 +127,25 @@ class InfisicalClient:
         Returns:
             Dictionary of secret names and values
         """
-        # Try different endpoint patterns based on Infisical version
-        endpoints = [
-            f"/api/v1/secrets?projectId={self.project_id}",
-            f"/api/unstable/internal/auth/test-token-lookup",
-            "/api/v1/shared-secrets"
-        ]
+        # Service account API endpoint
+        endpoint = f"/api/v1/projects/{self.project_id}/secrets?environment={environment}"
         
-        secrets = {}
-        
-        for endpoint in endpoints:
-            try:
-                response = self._make_request(endpoint)
-                
-                # Handle different response formats
-                if 'secrets' in response:
-                    for secret in response['secrets']:
-                        key = secret.get('secretKey', '')
-                        value = secret.get('secretValue', '')
-                        if key and value:
-                            secrets[key] = value
-                elif isinstance(response, dict):
-                    # If the response itself contains key-value pairs
-                    for key, value in response.items():
-                        if key != 'meta' and not key.startswith('_'):
-                            secrets[key] = value
-                
-                if secrets:  # If we found secrets, break
-                    break
-                    
-            except Exception as e:
-                print(f"Failed to fetch from {endpoint}: {e}")
-                continue
-        
-        return secrets
+        try:
+            response = self._make_request(endpoint)
+            
+            # Handle Infisical response format
+            secrets = {}
+            if 'secrets' in response:
+                for secret in response['secrets']:
+                    key = secret.get('secretKey', '')
+                    value = secret.get('secretValue', '')
+                    if key and value:
+                        secrets[key] = value
+            return secrets
+            
+        except Exception as e:
+            print(f"Failed to fetch secrets from {endpoint}: {e}")
+            return {}
     
     def get_secret(self, key: str) -> str:
         """
