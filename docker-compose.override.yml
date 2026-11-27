@@ -6,44 +6,53 @@
 # =============================================================================
 
 services:
+  # API Gateway — unified entry point for all pipeline services
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "8001:8000"   # Expose gateway on host port 8001
+    environment:
+      - QDRANT_URL=http://192.168.160.2:6333
+      - LM_STUDIO_URL=192.168.0.19:1234
+      - LOG_LEVEL=debug
+
+  # Deduplication service — document dedup and cleanup
   deduplication:
     build:
       context: .
       dockerfile: Dockerfile.service
-    ports:
-      - "8001:8001"   # Expose for local development
     environment:
-      - QDRANT_URL=http://host.docker.internal:6333  # Access NAS container from host
+      - QDRANT_URL=http://192.168.160.2:6333
       - LOG_LEVEL=debug
 
+  # Chunking service — document splitting and tokenization
   chunking:
     build:
       context: .
       dockerfile: Dockerfile.service
-    ports:
-      - "8002:8002"
     environment:
-      - QDRANT_URL=http://host.docker.internal:6333
+      - QDRANT_URL=http://192.168.160.2:6333
+      - LM_STUDIO_URL=192.168.0.19:1234
       - LOG_LEVEL=debug
 
+  # Embedding service — vector embedding generation
   embedding:
     build:
       context: .
       dockerfile: Dockerfile.service
-    ports:
-      - "8003:8003"
     environment:
-      - QDRANT_URL=http://host.docker.internal:6333
-      - LM_STUDIO_URL=http://host.docker.internal:1234
+      - QDRANT_URL=http://192.168.160.2:6333
+      - LM_STUDIO_URL=192.168.0.19:1234
       - LOG_LEVEL=debug
 
+  # Model cache service — LLM model caching and management
   model-cache:
     build:
       context: .
       dockerfile: Dockerfile.service
-    ports:
-      - "8004:8004"
     environment:
-      - QDRANT_URL=http://host.docker.internal:6333
-      - LM_STUDIO_URL=http://host.docker.internal:1234
+      - QDRANT_URL=http://192.168.160.2:6333
+      - LM_STUDIO_URL=192.168.0.19:1234
       - LOG_LEVEL=debug
