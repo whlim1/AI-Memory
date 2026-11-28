@@ -24,6 +24,10 @@ import time
 # HTTP client for LM Studio API
 import requests
 
+# Web framework for service endpoints (Phase 4 microservice)
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 
 # Configure logging
 logging.basicConfig(
@@ -131,6 +135,33 @@ class ModelCacheManager:
         
         return {}
     
+    def _probe_lm_studio(self, timeout: float = 2.0) -> Dict[str, Any]:
+        """Fast, non-blocking probe of the LM Studio API.
+
+        Returns a small status dict and NEVER raises. Used by the container
+        healthcheck so it stays well under the Docker healthcheck timeout even
+        when LM Studio is slow or unreachable.
+        """
+        result: Dict[str, Any] = {
+            'reachable': False,
+            'model_count': 0,
+            'error': None,
+        }
+        try:
+            response = requests.get(
+                f"{self.lm_studio_url}/v1/models",
+                timeout=timeout,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                result['reachable'] = True
+                result['model_count'] = len(data.get('data', []))
+            else:
+                result['error'] = f"HTTP {response.status_code}"
+        except Exception as e:
+            result['error'] = str(e)
+        return result
+
     def _get_current_model(self) -> Optional[str]:
         """Get currently loaded model."""
         try:
@@ -350,46 +381,35 @@ class ModelCacheManager:
             logger.error(f"Error loading cache state: {e}")
     
     def health_check(self) -> Dict[str, Any]:
-        """Check service health and dependencies."""
-        try:
-            # Check LM Studio connection
-            available_models = self._get_available_models()
-            
-            # Get current model status
-            current_model = self._get_current_model()
-            
-            return {
-                'status': 'healthy',
-                'service': 'ModelCacheManager',
-                'timestamp': datetime.utcnow().isoformat(),
-                'dependencies': {
-                    'lm_studio': {
-                        'status': 'connected',
-                        'base_url': str(self.lm_studio.base_url) if hasattr(self.lm_studio, 'base_url') else (str(self.lm_studio) if self.lm_studio else self.lm_studio_url),
-                    },
+        """Check service health and dependencies.
+
+        Fast by design: the container healthcheck runs `curl -f .../health`
+        with a 10s timeout, so this must return quickly even when LM Studio
+        is slow or unreachable. A bounded 2s probe is used for the LM Studio
+        dependency; a missing/down LM Studio is reported as `degraded`, not a
+        hard failure, because the service itself is healthy.
+        """
+        probe = self._probe_lm_studio(timeout=2.0)
+
+        return {
+            'status': 'healthy',
+            'service': 'ModelCacheManager',
+            'timestamp': datetime.utcnow().isoformat(),
+            'dependencies': {
+                'lm_studio': {
+                    'status': 'connected' if probe['reachable'] else 'degraded',
+                    'base_url': str(self.lm_studio.base_url) if hasattr(self.lm_studio, 'base_url') else (str(self.lm_studio) if self.lm_studio else self.lm_studio_url),
+                    **({'error': probe['error']} if probe['error'] else {}),
                 },
-                'metadata': {
-                    'available_models_count': len(available_models),
-                    'current_model': current_model,
-                    'total_cached': len(self.models),
-                    'hot_models': sum(1 for m in self.models.values() if m.status == ModelStatus.HOT),
-                    'warm_models': sum(1 for m in self.models.values() if m.status == ModelStatus.WARM),
-                    'cold_models': sum(1 for m in self.models.values() if m.status == ModelStatus.COLD),
-                },
-            }
-        except Exception as e:
-            return {
-                'status': 'unhealthy',
-                'service': 'ModelCacheManager',
-                'timestamp': datetime.utcnow().isoformat(),
-                'error': str(e),
-                'dependencies': {
-                    'lm_studio': {
-                        'status': 'disconnected',
-                        'error': str(e),
-                    },
-                },
-            }
+            },
+            'metadata': {
+                'available_models_count': probe['model_count'],
+                'total_cached': len(self.models),
+                'hot_models': sum(1 for m in self.models.values() if m.status == ModelStatus.HOT),
+                'warm_models': sum(1 for m in self.models.values() if m.status == ModelStatus.WARM),
+                'cold_models': sum(1 for m in self.models.values() if m.status == ModelStatus.COLD),
+            },
+        }
 
 
 class ModelSwitcher:
@@ -485,6 +505,68 @@ class ModelSwitcher:
             results['status'] = 'failed'
         
         return results
+
+
+# =============================================================================
+# FastAPI application (Phase 4 microservice)
+# =============================================================================
+
+def _resolve_lm_studio_url() -> str:
+    """Resolve the LM Studio URL from the LM_STUDIO_URL env var (scheme optional)."""
+    url = os.getenv('LM_STUDIO_URL', 'http://localhost:1234').strip()
+    if not url.startswith(('http://', 'https://')):
+        url = f'http://{url}'
+    return url
+
+
+cache_manager = ModelCacheManager(lm_studio_url=_resolve_lm_studio_url())
+switcher = ModelSwitcher(cache_manager)
+
+app = FastAPI(
+    title="Model Caching Strategy Service",
+    description="Model caching and GPU memory optimization for LM Studio",
+    version="1.0.0"
+)
+
+
+class SwitchRequest(BaseModel):
+    model_id: str
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint for container orchestration."""
+    return cache_manager.health_check()
+
+
+@app.get("/status")
+async def memory_status():
+    """Get GPU memory and cache status."""
+    return cache_manager.get_memory_status()
+
+
+@app.post("/sync")
+async def sync_with_lm_studio():
+    """Sync the model inventory with LM Studio."""
+    return cache_manager.sync_with_lm_studio()
+
+
+@app.get("/suggest")
+async def get_suggestion():
+    """Get a model suggestion for loading."""
+    return {"suggestion": switcher.get_model_suggestion()}
+
+
+@app.post("/optimize")
+async def optimize_cache():
+    """Run cache optimization (evict cold models as needed)."""
+    return switcher.optimize_cache()
+
+
+@app.post("/switch")
+async def switch_model(request: SwitchRequest):
+    """Switch to a specific model."""
+    return switcher.switch_to_model(request.model_id)
 
 
 def main():

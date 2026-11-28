@@ -30,6 +30,10 @@ try:
 except ImportError:
     NLP_AVAILABLE = False
 
+# Web framework for service endpoints (Phase 4 microservice)
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 logger = logging.getLogger('DynamicChunkingService')
 
@@ -616,6 +620,62 @@ class DynamicChunkingService:
                     },
                 },
             }
+
+
+# =============================================================================
+# FastAPI application (Phase 4 microservice)
+# =============================================================================
+
+service = DynamicChunkingService()
+
+app = FastAPI(
+    title="Dynamic Chunking Service",
+    description="Content-aware adaptive chunking for the AI Memory Pipeline",
+    version="1.0.0"
+)
+
+
+class ChunkRequest(BaseModel):
+    content: str
+    filename: Optional[str] = None
+    content_type: Optional[str] = None
+    force_type: bool = False
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint for container orchestration."""
+    return service.health_check()
+
+
+@app.post("/chunk")
+async def chunk_document(request: ChunkRequest):
+    """Chunk a document using the content-aware strategy."""
+    ctype = None
+    if request.content_type:
+        try:
+            ctype = ContentType(request.content_type)
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": f"Unknown content type: {request.content_type}"},
+            )
+    chunks = service.chunk_content(
+        request.content,
+        filename=request.filename,
+        content_type=ctype,
+        force_type=request.force_type,
+    )
+    return {
+        "chunks": [c.to_dict() for c in chunks],
+        "total_chunks": len(chunks),
+    }
+
+
+@app.get("/statistics")
+async def statistics():
+    """Get chunking statistics."""
+    return service.get_statistics()
 
 
 def main():

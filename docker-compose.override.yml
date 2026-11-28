@@ -11,8 +11,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.service
+    command: python -m uvicorn services.gateway:app --host 0.0.0.0 --port 8001
     ports:
-      - "8001:8000"   # Expose gateway on host port 8001
+      - "8002:8001"   # Expose gateway on host port 8002 (8001 is used by main pipeline API)
     environment:
       - QDRANT_URL=http://192.168.160.2:6333
       - LM_STUDIO_URL=192.168.0.19:1234
@@ -23,6 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.service
+    command: python -m uvicorn services.deduplication_service:app --host 0.0.0.0 --port 8001
     environment:
       - QDRANT_URL=http://192.168.160.2:6333
       - LOG_LEVEL=debug
@@ -32,6 +34,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.service
+    command: python -m uvicorn services.dynamic_chunking_service:app --host 0.0.0.0 --port 8001
     environment:
       - QDRANT_URL=http://192.168.160.2:6333
       - LM_STUDIO_URL=192.168.0.19:1234
@@ -42,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.service
+    command: python -m uvicorn services.embedding_quality_monitor:app --host 0.0.0.0 --port 8001
     environment:
       - QDRANT_URL=http://192.168.160.2:6333
       - LM_STUDIO_URL=192.168.0.19:1234
@@ -52,6 +56,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.service
+    command: python -m uvicorn services.model_caching_strategy:app --host 0.0.0.0 --port 8001
     environment:
       - QDRANT_URL=http://192.168.160.2:6333
       - LM_STUDIO_URL=192.168.0.19:1234

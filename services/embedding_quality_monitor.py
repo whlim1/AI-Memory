@@ -30,6 +30,9 @@ from qdrant_client.models import (
     MatchValue,
 )
 
+# Web framework for service endpoints (Phase 4 microservice)
+from fastapi import FastAPI
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -395,6 +398,64 @@ class EmbeddingQualityMonitor:
                 'Update metrics after completion',
             ],
         }
+
+
+# =============================================================================
+# FastAPI application (Phase 4 microservice)
+# =============================================================================
+
+def _resolve_qdrant_endpoint():
+    """Resolve Qdrant host/port from QDRANT_URL (preferred) or QDRANT_HOST/QDRANT_PORT."""
+    url = os.getenv('QDRANT_URL')
+    if url:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        return parsed.hostname or 'localhost', parsed.port or 6333
+    return (
+        os.getenv('QDRANT_HOST', 'localhost'),
+        int(os.getenv('QDRANT_PORT', 6333)),
+    )
+
+
+_qdrant_host, _qdrant_port = _resolve_qdrant_endpoint()
+
+monitor = EmbeddingQualityMonitor(qdrant_host=_qdrant_host, qdrant_port=_qdrant_port)
+
+app = FastAPI(
+    title="Embedding Quality Monitor",
+    description="Embedding drift and quality monitoring for the AI Memory Pipeline",
+    version="1.0.0"
+)
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint for container orchestration."""
+    return monitor.health_check()
+
+
+@app.get("/collections")
+async def list_collections():
+    """List monitored Qdrant collections."""
+    return {"collections": monitor.get_all_collections()}
+
+
+@app.get("/monitor/all")
+async def monitor_all():
+    """Analyze embedding quality across all collections."""
+    return monitor.monitor_all_collections()
+
+
+@app.post("/monitor/{collection}")
+async def monitor_collection(collection: str):
+    """Analyze embedding quality for a specific collection."""
+    return monitor.analyze_embedding_quality(collection)
+
+
+@app.post("/reingest/{collection}")
+async def reingest_collection(collection: str):
+    """Trigger re-ingestion for a collection."""
+    return monitor.trigger_reingestion(collection)
 
 
 def main():

@@ -13,10 +13,14 @@ Features:
 import hashlib
 import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
 import mmh3  # MurmurHash3 for faster near-duplicate detection
+
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 
 class HashType(Enum):
@@ -372,6 +376,61 @@ class DeduplicationService:
         except Exception as e:
             print(f"DeduplicationService health check failed: {e}")
             return False
+
+
+# =============================================================================
+# FastAPI application (Phase 4 microservice)
+# =============================================================================
+
+service = DeduplicationService()
+
+app = FastAPI(
+    title="Deduplication Service",
+    description="Hash-based document deduplication for the AI Memory Pipeline",
+    version="1.0.0"
+)
+
+
+class CheckRequest(BaseModel):
+    doc_id: str
+    content: str
+    fuzzy_threshold: Optional[float] = None
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint for container orchestration."""
+    healthy = service.health_check()
+    return {
+        "status": "healthy" if healthy else "unhealthy",
+        "service": "deduplication",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "dependencies": {
+            "hash_engine": {"status": "ok" if healthy else "error"},
+        },
+        "metadata": service.get_statistics(),
+    }
+
+
+@app.post("/check")
+async def check_document(request: CheckRequest):
+    """Check a document for exact or near-duplicate matches."""
+    if request.fuzzy_threshold is not None:
+        service.fuzzy_threshold = request.fuzzy_threshold
+    result = service.check_document(request.doc_id, request.content)
+    return {
+        "doc_id": result.doc_id,
+        "is_duplicate": result.is_duplicate,
+        "duplicate_of": result.duplicate_of,
+        "similarity_score": result.similarity_score,
+        "hash_matches": result.hash_matches,
+    }
+
+
+@app.get("/statistics")
+async def statistics():
+    """Get deduplication statistics."""
+    return service.get_statistics()
 
 
 def main():
