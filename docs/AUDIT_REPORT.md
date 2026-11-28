@@ -52,7 +52,7 @@ All 5 services share one image (`ai-memory-chunking:latest`, short ID `02ca18c77
 | `ai-memory-deduplication` | `ai-memory-deduplication:latest` | none (internal) | ✅ Healthy | `services.deduplication_service:app` |
 | `ai-memory-chunking` | `ai-memory-chunking:latest` | none (internal) | ✅ Healthy | `services.dynamic_chunking_service:app` |
 | `ai-memory-embedding` | `ai-memory-embedding:latest` | none (internal) | ✅ Healthy | `services.embedding_quality_monitor:app` |
-| `ai-memory-model-cache` | `ai-memory-model-cache:latest` | none (internal) | ✅ Healthy | `services.model_caching_strategy:app`; healthcheck fix — fast LM Studio probe, reports `degraded` instead of failing when LM Studio unreachable from NAS |
+| `ai-memory-model-cache` | `ai-memory-model-cache:latest` | none (internal) | ✅ Healthy | `services.model_caching_strategy:app`; fast LM Studio probe (2s) reports `connected` — LM Studio reachable from NAS after firewall fix |
 
 ### Infrastructure
 | Container | Image | Health | Uptime |
@@ -82,7 +82,8 @@ All 5 services share one image (`ai-memory-chunking:latest`, short ID `02ca18c77
 - **After:** All 5 containers running healthy on `AI-Memory-network`:
   - `ai-memory-api-gateway` (host 8002:8001), `ai-memory-deduplication`, `ai-memory-chunking`, `ai-memory-embedding`, `ai-memory-model-cache` (internal-only)
   - Built once via Portainer Docker build API (`Dockerfile.service`), then re-tagged under all 5 names (single image `02ca18c7795e`)
-- **Code fixes:** `JSONResponse` import fixed in `dynamic_chunking_service.py`; model-cache `/health` rewritten to use a fast LM Studio probe (2s timeout) that reports `degraded` instead of timing out — LM Studio (192.168.0.19) is unreachable from the NAS container network, which previously made the 10s healthcheck fail
+- **Code fixes:** `JSONResponse` import fixed in `dynamic_chunking_service.py`; model-cache `/health` rewritten to use a fast LM Studio probe (2s timeout) that reports `degraded` gracefully instead of timing out (intentional — stays in place)
+- **Network fix:** LM Studio (192.168.0.19:1234) was unreachable from the NAS container network because Windows Firewall had no inbound rule for TCP 1234. Added rule `LM Studio API - NAS only` (TCP 1234, `remoteip=192.168.0.16/32` only, all profiles). `ai-memory-model-cache` now reports `lm_studio: connected`
 - **Networking:** Gateway bound to host 8002 because 8001 is owned by `AI-Memory-pipeline`; other 4 services internal-only, reachable via `AI-Memory-network` aliases
 
 ### Monitoring Stack — Fully Deployed
@@ -176,8 +177,7 @@ Compose declares `qdrant/qdrant:v1.7.0` but prior audit noted a custom image was
 
 1. **Verify OpenWebUI RAG integration** with Qdrant collection
 2. **Review sync engine logs** for any errors during operation
-3. **Review model-cache degraded state** — LM Studio (192.168.0.19) is unreachable from the NAS container network; the healthcheck reports `degraded` by design, but if LM Studio should be reachable from the NAS, investigate the network path (the service degrades gracefully, so this is non-blocking)
 
 ---
 
-*End of Audit Report — updated 2026-11-28 (Phase 4 microservices deployed)*
+*End of Audit Report — updated 2026-11-28 (Phase 4 microservices deployed; LM Studio network path fixed)*
