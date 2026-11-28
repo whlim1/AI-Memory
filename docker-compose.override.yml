@@ -15,6 +15,12 @@ services:
     ports:
       - "8002:8001"   # Expose gateway on host port 8002 (8001 is used by main pipeline API)
     environment:
+      # Peer services (compose DNS names on the shared network; all listen on 8001)
+      - CHUNKING_URL=http://chunking:8001
+      - DEDUP_URL=http://deduplication:8001
+      - EMBEDDING_URL=http://embedding:8001
+      - MODEL_CACHE_URL=http://model-cache:8001
+      # Infrastructure
       - QDRANT_URL=http://192.168.160.2:6333
       - LM_STUDIO_URL=192.168.0.19:1234
       - LOG_LEVEL=debug
